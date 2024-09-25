@@ -6,30 +6,41 @@
 // vulkan
 #include <vulkan/vulkan.h>
 
+// engine includes
+#include <window.hpp>
+
 namespace renderer {
 
 class Device
 {
 public:
-    Device();
+    Device(Window& window);
     ~Device();
 private:
     void InitVulkan();
 
     // Instance
     void CreateInstance();
-    bool CheckValidationLayerSupport();
-    std::vector<const char*> GetRequiredExtensions();
-    void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
-    static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
+    void SetupDebugMessenger()l
+    void CreateSurface();
+    void PickPhysicalDevice();
 
 private:
+    // window for rendering to it
+    engine::Window& window_;
+
     VkInstance instance_;
+    VkDebugUtilsMessengerEXT debug_messenger_;
+
+    // surface
+    VkSurfaceKHR surface_;
+
+    VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
+
+
 
 private:
-    inline static const std::vector<const char*> s_validation_layers_ = {
-        "VK_LAYER_KHRONOS_validation"
-    };
+
 };
 
 } // namespace renderer

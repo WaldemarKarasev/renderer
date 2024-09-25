@@ -3,6 +3,9 @@
 // stl
 #include <string>
 
+// vulkan
+#include <vulkan/vulkan.h>
+
 // glfw
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -21,8 +24,13 @@ public:
 private:
     void InitWindow();
 
+    // surface creation
+    void CreateSurface(VkInstance instance, VkSurfaceKHR *surface);
+
     // resize callback
     static void FrameBufferResizeCallback(GLFWwindow* window, int width, int height);
+
+
 private:
     int width_;
     int height_;

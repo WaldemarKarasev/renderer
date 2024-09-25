@@ -1,4 +1,4 @@
-#include "window.hpp"
+#include <window.hpp>
 
 namespace engine {
 
@@ -24,6 +24,16 @@ void Window::InitWindow()
     window_ = glfwCreateWindow(width_, height_, window_name_.c_str(), nullptr, nullptr);
     glfwSetWindowUserPointer(window_, this);
     glfwSetFramebufferSizeCallback(window_, FrameBufferResizeCallback);
+}
+
+// surface creation
+void Window::CreateSurface(VkInstance instance, VkSurfaceKHR *surface)
+{
+    if (glfwCreateWindowSurface(instance, window_, nullptr, surface) != VK_SUCCESS)
+    {
+        std::cerr << "Failed to create Vulkan Window surface" << std::endl;
+        std::abort();
+    }
 }
 
 void Window::FrameBufferResizeCallback(GLFWwindow* window, int width, int height)
