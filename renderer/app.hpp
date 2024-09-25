@@ -1,6 +1,7 @@
 #pragma once 
 
-#include <renderer/device.hpp>
+#include <renderer/window.hpp>
+#include <renderer/renderer/device.hpp>
 
 namespace engine {
 
@@ -12,7 +13,8 @@ public:
 private:
     bool running_{false};
 
-    renderer::Device device_;
+    engine::Window window{"Triangle", 1920, 1080};
+    renderer::Device device_{window};
 
 };
 

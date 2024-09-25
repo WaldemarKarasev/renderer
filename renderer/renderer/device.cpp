@@ -1,4 +1,4 @@
-#include <device.hpp>
+#include <renderer/renderer/device.hpp>
 
 // std
 #include <iostream>
@@ -8,9 +8,10 @@
 #include <GLFW/glfw3.h>
 
 // engine includes
-#include <detail/debug_utils.hpp>
-#include <detail/extension_utils.hpp>
-#include <detail/validation_layers.hpp>
+#include <renderer/renderer/detail/debug_utils.hpp>
+#include <renderer/renderer/detail/extension_utils.hpp>
+#include <renderer/renderer/detail/validation_layers.hpp>
+#include <renderer/renderer/detail/physical_device_utils.hpp>
 
 namespace renderer
 {
@@ -29,9 +30,15 @@ Device::~Device()
 
 void Device::InitVulkan()
 {
+    std::cout << "1" << std::endl;
     CreateInstance();
+    std::cout << "2" << std::endl;
     SetupDebugMessenger();
+    std::cout << "3" << std::endl;
     CreateSurface();
+    std::cout << "4" << std::endl;
+    PickPhysicalDevice();
+    std::cout << "5" << std::endl;
 }
 
 void Device::CreateInstance()
@@ -57,19 +64,22 @@ void Device::CreateInstance()
     auto extensions = detail::GetRequiredExtensions();
     create_info.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     create_info.ppEnabledExtensionNames = extensions.data();
+    std::cout << extensions.size() << std::endl;
 
     VkDebugUtilsMessengerCreateInfoEXT debug_create_info{};
-    create_info.enabledLayerCount = static_cast<uint32_t>(s_validation_layers_.size());
-    create_info.ppEnabledExtensionNames = s_validation_layers_.data();
-
+    create_info.enabledLayerCount = static_cast<uint32_t>(detail::s_validation_layers_.size());
+    create_info.ppEnabledExtensionNames = detail::s_validation_layers_.data();
     detail::PopulateDebugMessengerCreateInfo(debug_create_info);
     create_info.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debug_create_info;
+
+    std::cout << create_info.enabledLayerCount << std::endl;
 
     if (vkCreateInstance(&create_info, nullptr, &instance_) != VK_SUCCESS)
     {
         std::cerr << "Failed to create instance!" << std::endl;
         std::abort();
     }
+    std::cout << "6" << std::endl;
 }
 
 void Device::SetupDebugMessenger()
@@ -77,7 +87,7 @@ void Device::SetupDebugMessenger()
     VkDebugUtilsMessengerCreateInfoEXT create_info;
     detail::PopulateDebugMessengerCreateInfo(create_info);
 
-    if (detail::CreateDebugUtilsMessengerEXT(instance_, &create_info, nullptr, debug_messenger_) != VK_SUCCESS)
+    if (detail::CreateDebugUtilsMessengerEXT(instance_, &create_info, nullptr, &debug_messenger_) != VK_SUCCESS)
     {
         std::cerr << "Failed to create CreateDebugUtilsMessengerEXT" << std::endl;
         std::abort();
@@ -91,7 +101,7 @@ void Device::CreateSurface()
 
 void Device::PickPhysicalDevice()
 {
-    uint32_t device_count_ = 0;
+    uint32_t device_count = 0;
     vkEnumeratePhysicalDevices(instance_, &device_count, nullptr);
 
     if (device_count == 0)
@@ -103,15 +113,8 @@ void Device::PickPhysicalDevice()
     std::vector<VkPhysicalDevice> devices(device_count);
     vkEnumeratePhysicalDevices(instance_, &device_count, devices.data());
 
-    for (const auto& device : devices)
-    {
-        if (detail::IsDeviceSuitable(device))
-        {
-            physical_device_ = device;
-            break;
-        }
-    }
-
+    detail::PhysicalDeviceSelector s{devices, surface_};
+    physical_device_ = s.Select();
     if (physical_device_ == VK_NULL_HANDLE)
     {
         std::cerr << "Failed to find a suitable GPU!" << std::endl;

@@ -1,4 +1,7 @@
-#include <window.hpp>
+#include <renderer/window.hpp>
+
+// std
+#include <iostream>
 
 namespace engine {
 
@@ -24,6 +27,7 @@ void Window::InitWindow()
     window_ = glfwCreateWindow(width_, height_, window_name_.c_str(), nullptr, nullptr);
     glfwSetWindowUserPointer(window_, this);
     glfwSetFramebufferSizeCallback(window_, FrameBufferResizeCallback);
+    std::cout << "Window init finished" << std::endl;
 }
 
 // surface creation

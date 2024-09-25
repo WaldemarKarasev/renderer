@@ -1,34 +1,14 @@
-cmake_minimum_required(VERSION 3.15)
+set(TARGET app)
 
-# setting clang compilers
-set(CMAKE_CXX_COMPILER "clang++-18")
-set(CMAKE_C_COMPILER "clang-18")
+get_filename_component(PATH "." ABSOLUTE)
+get_filename_component(INCLUDE_PATH ".." ABSOLUTE)
 
+file(GLOB_RECURSE CXX_SOURCES ${PATH}/*.cpp)
+file(GLOB_RECURSE CXX_INCLUDES ${PATH}/*.hpp)
 
-project(vulkan_renderer CXX C)
+add_library(${TARGET} ${CXX_SOURCES} ${CXX_INCLUDS})
 
+target_include_directories(${TARGET} PUBLIC ${INCLUDE_PATH})
+message(AAAAAAAAAA ${INCLUDE_PATH})
 
-# settings
-include(cmake/logging.cmake)
-include(cmake/check_compiler.cmake)
-include(cmake/compile_options.cmake)
-include(cmake/sanitize.cmake)
-
-
-include(FetchContent)
-FetchContent_Declare(
-  glfw
-  GIT_REPOSITORY https://github.com/glfw/glfw.git
-#   GIT_TAG        3.4 # release-1.10.0
-)
-# FetchContent_MakeAvailable(glfw)
-
-
-# SET(CMAKE_FIND_ROOT_PATH  /home/pingvinus/vulkan/1.3.283.0/x86_64)
-SET(CMAKE_FIND_ROOT_PATH  /home/pingvinus/vulkan/1.3.290.0/x86_64)
-find_package(Vulkan REQUIRED volk)
-
-
-
-# include_directories(${Vulkan_INCLUDE_DIRS})
-add_subdirectory(renderer)
+target_link_libraries(${TARGET} Vulkan::Vulkan glfw)

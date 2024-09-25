@@ -7,21 +7,21 @@
 #include <vulkan/vulkan.h>
 
 // engine includes
-#include <window.hpp>
+#include <renderer/window.hpp>
 
 namespace renderer {
 
 class Device
 {
 public:
-    Device(Window& window);
+    Device(engine::Window& window);
     ~Device();
 private:
     void InitVulkan();
 
     // Instance
     void CreateInstance();
-    void SetupDebugMessenger()l
+    void SetupDebugMessenger();
     void CreateSurface();
     void PickPhysicalDevice();
 

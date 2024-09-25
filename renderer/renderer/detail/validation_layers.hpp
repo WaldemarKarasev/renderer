@@ -11,38 +11,38 @@
 
 namespace renderer::detail {
 
-    static const std::vector<const char*> s_validation_layers_ = {
-        "VK_LAYER_KHRONOS_validation"
-    };
+static const std::vector<const char*> s_validation_layers_ = {
+    "VK_LAYER_KHRONOS_validation"
+};
 
-    inline bool CheckValidationLayerSupport()
+inline bool CheckValidationLayerSupport()
+{
+    uint32_t layer_count;
+    vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
+ 
+    std::vector<VkLayerProperties> available_layers(layer_count);
+    vkEnumerateInstanceLayerProperties(&layer_count, available_layers.data());
+ 
+    for (const char* layer_name : s_validation_layers_)
     {
-        uint32_t layer_count;
-        vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
+        bool layer_found = false;
 
-        std::vector<VkLayerProperties> available_layers(layer_count);
-        vkEnumerateInstanceLayerProperties(&layer_count, available_layers.data());
-
-        for (const char* layer_name : s_validation_layers_)
+        for (const auto& layer_properties : available_layers)
         {
-            bool layer_found = false;
-
-            for (const auto& layer_properties : available_layers)
+            if (std::strcmp(layer_name, layer_properties.layerName) == 0)
             {
-                if (std::strcmp(layer_name, layer_properties.layerName) == 0)
-                {
-                    layer_found = true;
-                }
-            }
-
-            if (!layer_found)
-            {
-                return false;
+                layer_found = true;
             }
         }
 
-        return true;
+        if (!layer_found)
+        {
+            return false;
+        }
     }
+ 
+    return true;
+}
 
 
 } // namespace renderer::detail

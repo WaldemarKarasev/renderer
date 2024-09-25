@@ -21,11 +21,12 @@ public:
     Window(const Window&) = delete;
     Window& operator=(const Window&) = delete;
 
+    // surface creation
+    void CreateSurface(VkInstance instance, VkSurfaceKHR *surface);
+
 private:
     void InitWindow();
 
-    // surface creation
-    void CreateSurface(VkInstance instance, VkSurfaceKHR *surface);
 
     // resize callback
     static void FrameBufferResizeCallback(GLFWwindow* window, int width, int height);

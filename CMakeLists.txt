@@ -28,7 +28,8 @@ FetchContent_Declare(
 SET(CMAKE_FIND_ROOT_PATH  /home/pingvinus/vulkan/1.3.290.0/x86_64)
 find_package(Vulkan REQUIRED volk)
 
-
-
 # include_directories(${Vulkan_INCLUDE_DIRS})
 add_subdirectory(renderer)
+
+add_executable(engine main.cpp)
+target_link_libraries(engine app)

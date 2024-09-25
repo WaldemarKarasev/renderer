@@ -1,10 +1,15 @@
-#include <physical_device_utils.hpp>
-
+#include <renderer/renderer/detail/physical_device_utils.hpp>
 // std
 #include <optional>
 #include <string>
+#include <vector>
+#include <set>
 
 namespace renderer::detail {
+
+static const std::vector<const char*> s_device_extensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
 
 struct QueueFamilyIndices {
     std::optional<uint32_t> graphics_family_;
@@ -12,7 +17,7 @@ struct QueueFamilyIndices {
 
     bool IsComplete() 
     {
-        return graphics_family.has_value() && present_family_.has_value();
+        return graphics_family_.has_value() && present_family_.has_value();
     }
 };
 
@@ -22,7 +27,7 @@ struct SwapChainSupportDetails {
     std::vector<VkPresentModeKHR> present_modes_;
 };
 
-static QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device) {
+static QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface) {
     QueueFamilyIndices indices;
 
     uint32_t queue_family_count = 0;
@@ -60,22 +65,23 @@ static QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device) {
 
 
 bool CheckDeviceExtensionSupport(VkPhysicalDevice device) {
-    uint32_t extensionCount;
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+    uint32_t extension_count;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
 
-    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+    std::vector<VkExtensionProperties> available_extensions(extension_count);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, available_extensions.data());
 
-    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+    std::set<std::string> required_extensions(s_device_extensions.begin(), s_device_extensions.end());
 
-    for (const auto& extension : availableExtensions) {
-        requiredExtensions.erase(extension.extensionName);
+    for (const auto& extension : available_extensions) {
+        required_extensions.erase(extension.extensionName);
     }
 
-    return requiredExtensions.empty();
+    return required_extensions.empty();
 }
 
-static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) {
+static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface)
+{
     SwapChainSupportDetails details;
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities_);
@@ -85,8 +91,8 @@ static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) {
 
     if (format_count != 0) 
     {
-        details.formats.resize(format_count);
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &format_count, details.formats.data());
+        details.formats_.resize(format_count);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &format_count, details.formats_.data());
     }
 
     uint32_t present_mode_count;
@@ -94,16 +100,33 @@ static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) {
 
     if (present_mode_count != 0) 
     {
-        details.presentModes.resize(present_mode_count);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &present_mode_count, details.presentModes.data());
+        details.present_modes_.resize(present_mode_count);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &present_mode_count, details.present_modes_.data());
     }
 
     return details;
 }
 
-bool IsDeviceSuitable(VkPhysicalDevice physical_device)
+
+VkPhysicalDevice PhysicalDeviceSelector::Select()
 {
-    QueueFamilyIndices indices = FindQueueFamilies(physical_device);
+    VkPhysicalDevice physical_device = VK_NULL_HANDLE;
+    for (const auto& device : devices_)
+    {
+        if (IsDeviceSuitable(device))
+        {
+            physical_device = device;
+            break;
+        }
+    }
+
+
+    return physical_device;
+}
+
+bool PhysicalDeviceSelector::IsDeviceSuitable(VkPhysicalDevice physical_device)
+{
+    QueueFamilyIndices indices = FindQueueFamilies(physical_device, surface_);
 
     bool extensions_supported = CheckDeviceExtensionSupport(physical_device);
 
@@ -111,8 +134,8 @@ bool IsDeviceSuitable(VkPhysicalDevice physical_device)
     
     if (extensions_supported)
     {
-        SwapChainSupportDetails spaw_chain_support = QuerySwapChainSupport(physical_device);
-        swap_chain_adequate = !spaw_chain_support.formats_.empty() && !spaw_chain_support.present_modes.empty();
+        SwapChainSupportDetails spaw_chain_support = QuerySwapChainSupport(physical_device, surface_);
+        swap_chain_adequate = !spaw_chain_support.formats_.empty() && !spaw_chain_support.present_modes_.empty();
     }
 
     return indices.IsComplete() && extensions_supported && swap_chain_adequate;
