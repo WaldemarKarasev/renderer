@@ -12,7 +12,7 @@
 
 namespace renderer::detail {
 
-    static inline const std::vector<const char*> s_device_extensions == {
+    static inline const std::vector<const char*> s_device_extensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 

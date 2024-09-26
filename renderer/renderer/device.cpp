@@ -2,6 +2,7 @@
 
 // std
 #include <iostream>
+#include <set>
 
 // glfw
 #define GLFW_INCLUDE_VULKAN
@@ -151,14 +152,14 @@ void Device::CreateLogicalDevice()
     create_info.queueCreateInfoCount = static_cast<uint32_t>(queue_create_infos.size());
     create_info.pQueueCreateInfos = queue_create_infos.data();
 
-    create_info.pEnableFeatures = &device_features;
+    create_info.pEnabledFeatures = &device_features;
 
-    create_info.enableExtensionCount = static_cast<uint32_t>(detail::s_device_extensions.size());
+    create_info.enabledExtensionCount = static_cast<uint32_t>(detail::s_device_extensions.size());
     create_info.ppEnabledExtensionNames = detail::s_device_extensions.data();
 
     // validation layers
     create_info.enabledLayerCount = static_cast<uint32_t>(detail::s_validation_layers_.size());
-    create_info.ppEnabledLayersNames = detail::s_validation_layers_.data();
+    create_info.ppEnabledLayerNames = detail::s_validation_layers_.data();
 
     if (vkCreateDevice(physical_device_, &create_info, nullptr, &device_) != VK_SUCCESS)
     {

@@ -1,6 +1,7 @@
 #pragma once
 
 // std
+#include <optional>
 #include <vector>
 
 // vulkan
@@ -28,7 +29,7 @@ public:
         , surface_{surface}
     {}
 
-    VkPhysicalDevice Select() &;
+    VkPhysicalDevice Select();
 private:
     bool IsDeviceSuitable(VkPhysicalDevice device);
 
