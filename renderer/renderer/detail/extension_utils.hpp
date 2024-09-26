@@ -12,7 +12,9 @@
 
 namespace renderer::detail {
 
-    extern const std::vector<const char*> glob_validationLayers;
+    static inline const std::vector<const char*> s_device_extensions == {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    };
 
     inline std::vector<const char*> GetRequiredExtensions()
     {

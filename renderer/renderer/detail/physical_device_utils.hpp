@@ -8,6 +8,18 @@
 
 namespace renderer::detail {
 
+struct QueueFamilyIndices {
+    std::optional<uint32_t> graphics_family_;
+    std::optional<uint32_t> present_family_;
+
+    bool IsComplete() 
+    {
+        return graphics_family_.has_value() && present_family_.has_value();
+    }
+};
+
+QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
+
 class PhysicalDeviceSelector
 {
 public:
@@ -16,8 +28,7 @@ public:
         , surface_{surface}
     {}
 
-    VkPhysicalDevice Select();
-
+    VkPhysicalDevice Select() &;
 private:
     bool IsDeviceSuitable(VkPhysicalDevice device);
 

@@ -24,21 +24,23 @@ Device::Device(engine::Window& window)
 
 Device::~Device()
 {
+    vkDestroyCommandPool(device_, command_pool_, nullptr);
+    vkDestroyDevice(device_, nullptr);
+
+    // Validation layers
+
     detail::DestroyDebugUtilsMessengerEXT(instance_, debug_messenger_, nullptr);
+
+    vkDestroySurfaceKHR(instance_, surface_, nullptr);
     vkDestroyInstance(instance_, nullptr);
 }
 
 void Device::InitVulkan()
 {
-    std::cout << "1" << std::endl;
     CreateInstance();
-    std::cout << "2" << std::endl;
     SetupDebugMessenger();
-    std::cout << "3" << std::endl;
     CreateSurface();
-    std::cout << "4" << std::endl;
     PickPhysicalDevice();
-    std::cout << "5" << std::endl;
 }
 
 void Device::CreateInstance()
@@ -53,7 +55,7 @@ void Device::CreateInstance()
     app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     app_info.pApplicationName = "Vulkan Renderer";
     app_info.applicationVersion = VK_MAKE_VERSION(0, 0, 1);
-    app_info.pEngineName = "Home Engine";
+    app_info.pEngineName = "No Engine";
     app_info.engineVersion = VK_MAKE_VERSION(0, 0, 1);
     app_info.apiVersion = VK_API_VERSION_1_3;
 
@@ -68,11 +70,12 @@ void Device::CreateInstance()
 
     VkDebugUtilsMessengerCreateInfoEXT debug_create_info{};
     create_info.enabledLayerCount = static_cast<uint32_t>(detail::s_validation_layers_.size());
-    create_info.ppEnabledExtensionNames = detail::s_validation_layers_.data();
+    // create_info.ppEnabledExtensionNames = detail::s_validation_layers_.data();
+    create_info.ppEnabledLayerNames = detail::s_validation_layers_.data();
+
     detail::PopulateDebugMessengerCreateInfo(debug_create_info);
     create_info.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debug_create_info;
 
-    std::cout << create_info.enabledLayerCount << std::endl;
 
     if (vkCreateInstance(&create_info, nullptr, &instance_) != VK_SUCCESS)
     {
@@ -113,8 +116,8 @@ void Device::PickPhysicalDevice()
     std::vector<VkPhysicalDevice> devices(device_count);
     vkEnumeratePhysicalDevices(instance_, &device_count, devices.data());
 
-    detail::PhysicalDeviceSelector s{devices, surface_};
-    physical_device_ = s.Select();
+    physical_device_ = detail::PhysicalDeviceSelector{devices, surface_}.Select(); // CE: because of & in Select function declaration
+
     if (physical_device_ == VK_NULL_HANDLE)
     {
         std::cerr << "Failed to find a suitable GPU!" << std::endl;
@@ -122,6 +125,66 @@ void Device::PickPhysicalDevice()
     }
 }
 
+void Device::CreateLogicalDevice()
+{   
+    detail::QueueFamilyIndices indices = detail::FindQueueFamilies(physical_device_, surface_);
 
+    std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
+    std::set<uint32_t> unique_queue_families = {indices.graphics_family_.value(), indices.present_family_.value()};
+
+    float queue_priority = 1.0f;
+    for (uint32_t queue_family : unique_queue_families)
+    {
+        VkDeviceQueueCreateInfo queue_create_info{};
+        queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queue_create_info.queueFamilyIndex = queue_family;
+        queue_create_info.queueCount = 1;
+        queue_create_info.pQueuePriorities = &queue_priority;
+        queue_create_infos.push_back(queue_create_info);
+    }
+
+    VkPhysicalDeviceFeatures device_features{};
+
+    VkDeviceCreateInfo create_info{};
+    create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+    create_info.queueCreateInfoCount = static_cast<uint32_t>(queue_create_infos.size());
+    create_info.pQueueCreateInfos = queue_create_infos.data();
+
+    create_info.pEnableFeatures = &device_features;
+
+    create_info.enableExtensionCount = static_cast<uint32_t>(detail::s_device_extensions.size());
+    create_info.ppEnabledExtensionNames = detail::s_device_extensions.data();
+
+    // validation layers
+    create_info.enabledLayerCount = static_cast<uint32_t>(detail::s_validation_layers_.size());
+    create_info.ppEnabledLayersNames = detail::s_validation_layers_.data();
+
+    if (vkCreateDevice(physical_device_, &create_info, nullptr, &device_) != VK_SUCCESS)
+    {
+        std::cerr << "Failed to create Vulkan Logical device" << std::endl;
+        std::abort();
+    }
+
+    vkGetDeviceQueue(device_, indices.graphics_family_.value(), 0, &graphics_queue_);
+    vkGetDeviceQueue(device_, indices.present_family_.value(), 0, &present_queue_);
+}
+
+void Device::CreateCommandPools()
+{
+    detail::QueueFamilyIndices indices = detail::FindQueueFamilies(physical_device_, surface_);
+
+    VkCommandPoolCreateInfo pool_info{};
+    pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    pool_info.queueFamilyIndex = indices.graphics_family_.value();
+    pool_info.flags = 
+        VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    
+    if (vkCreateCommandPool(device_, &pool_info, nullptr, &command_pool_) != VK_SUCCESS)
+    {
+        std::cerr << "Failed to create Vulkan commang poll!" << std::endl;
+        std::abort();
+    }
+}
 
 } // namespace renderer

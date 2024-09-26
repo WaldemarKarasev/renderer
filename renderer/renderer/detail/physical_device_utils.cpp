@@ -11,23 +11,13 @@ static const std::vector<const char*> s_device_extensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
-struct QueueFamilyIndices {
-    std::optional<uint32_t> graphics_family_;
-    std::optional<uint32_t> present_family_;
-
-    bool IsComplete() 
-    {
-        return graphics_family_.has_value() && present_family_.has_value();
-    }
-};
-
 struct SwapChainSupportDetails {
     VkSurfaceCapabilitiesKHR capabilities_;
     std::vector<VkSurfaceFormatKHR> formats_;
     std::vector<VkPresentModeKHR> present_modes_;
 };
 
-static QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface) {
+QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface) {
     QueueFamilyIndices indices;
 
     uint32_t queue_family_count = 0;
@@ -108,7 +98,7 @@ static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, Vk
 }
 
 
-VkPhysicalDevice PhysicalDeviceSelector::Select()
+VkPhysicalDevice PhysicalDeviceSelector::Select() 
 {
     VkPhysicalDevice physical_device = VK_NULL_HANDLE;
     for (const auto& device : devices_)

@@ -24,6 +24,8 @@ private:
     void SetupDebugMessenger();
     void CreateSurface();
     void PickPhysicalDevice();
+    void CreateLogicalDevice();
+    void CreateCommandPools();
 
 private:
     // window for rendering to it
@@ -36,11 +38,14 @@ private:
     VkSurfaceKHR surface_;
 
     VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
+    VkDevice device_;
 
+    // device_ queues
+    VkQueue graphics_queue_;
+    VkQueue present_queue_;
 
-
-private:
-
+    // devide_ command pool
+    VkCommandPool command_pool_;
 };
 
 } // namespace renderer
