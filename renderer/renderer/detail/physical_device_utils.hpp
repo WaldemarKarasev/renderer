@@ -19,7 +19,14 @@ struct QueueFamilyIndices {
     }
 };
 
+struct SwapChainSupportDetails {
+    VkSurfaceCapabilitiesKHR capabilities_;
+    std::vector<VkSurfaceFormatKHR> formats_;
+    std::vector<VkPresentModeKHR> present_modes_;
+};
+
 QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
+SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 
 class PhysicalDeviceSelector
 {

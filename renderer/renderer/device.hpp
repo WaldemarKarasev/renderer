@@ -16,6 +16,10 @@ class Device
 public:
     Device(engine::Window& window);
     ~Device();
+
+    VkPhysicalDevice GetPhysicalDevice() { return physical_device_; }
+    VkSurfaceKHR GetSurface()            { return surface_; }
+
 private:
     void InitVulkan();
 
