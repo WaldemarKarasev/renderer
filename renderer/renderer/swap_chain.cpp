@@ -11,6 +11,16 @@ SwapChain::SwapChain(engine::Window& window, Device& device)
     CreateSwapChain();
 }
 
+SwapChain::~SwapChain()
+{
+    for (auto image_view : swap_chain_image_views_) 
+    {
+        vkDestroyImageView(device_.GetDevice(), image_view, nullptr);
+    }
+
+    vkDestroySwapchainKHR(device_.GetDevice(), swap_chain_, nullptr);
+}
+
 void SwapChain::CreateSwapChain()
 {
     detail::SwapChainSupportDetails swap_chain_support = detail::QuerySwapChainSupport(device_.GetPhysicalDevice(), device_.GetSurface());
@@ -55,19 +65,49 @@ void SwapChain::CreateSwapChain()
     create_info.presentMode = preset_mode;
     create_info.clipped = VK_TRUE;
 
-    if (vkCreateSwapChainKHR(device_, &create_info, nullptr, &swap_chain_) != VK_SUCCESS)
+    if (vkCreateSwapChainKHR(device_.GetDevice(), &create_info, nullptr, &swap_chain_) != VK_SUCCESS)
     {
         std::cerr << "Failed to create Vulkan swap chain!" << std::endl;
         std::abort();
     }
 
-    vkCreateSwapChainImageKHR(device_, swap_chain_, &image_count, nullptr);
+    vkCreateSwapChainImageKHR(device_.GetDevice(), swap_chain_, &image_count, nullptr);
     swap_chain_images_.resize(image_count);
-    vkGetSwapChainImageKHR(device_, swap_chain_, &image_count, swap_chain_images_.data());
+    vkGetSwapChainImageKHR(device_.GetDevice(), swap_chain_, &image_count, swap_chain_images_.data());
 
     swap_chain_image_format_ = surface_format_.format;
     swap_chain_extent_ = extent;
 }   
+
+void SwapChain::CreateSwapChainImages()
+{
+    swap_chain_image_views_.resize(swap_chain_images_.size());
+
+    for (size_t i = 0; i < swap_chain_image_views_.size(); ++i)
+    {
+        VkImageViewCreateInfo create_info{};
+        create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_FORMAT_INFO;
+        crete_info.image = swap_chain_images_[i];
+        create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        create_info.format = swap_chain_image_format_;
+        create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        create_info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        create_info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        create_info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+        create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        create_info.subresourceRange.baseMipLevel = 0;
+        create_info.subresourceRange.levelCount = 1;
+        create_info.subresourceRange.baseArrayLayer = 0;
+        create_info.subresourceRange.layerCount = 1;
+
+        if (vkCreateImageView(device_.GetDevice(), &create_info, nullptr, &swap_chain_image_views_[i]) != VK_SUCCESS)
+        {
+            std::cerr << "Failed to create image views!" << std::endl;
+            std::abort();
+        } 
+    }
+}
+
 
 VkExtent2D SwapChain::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
 {
@@ -80,7 +120,16 @@ VkExtent2D SwapChain::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilit
         int width;
         int height;
 
-        glfwGetFramebufferSize()
+        glfwGetFramebufferSize(window_, &width, &height);
+        VkExtent2D actualExtent = {
+            static_cast<uint32_t>(width),
+            static_cast<uint32_t>(height)
+        };
+
+        actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+        actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+
+        return actualExtent;
     }
 }
 

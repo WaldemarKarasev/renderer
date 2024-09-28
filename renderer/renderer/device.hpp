@@ -17,6 +17,7 @@ public:
     Device(engine::Window& window);
     ~Device();
 
+    VkDevice GetDevice() { return device_; }
     VkPhysicalDevice GetPhysicalDevice() { return physical_device_; }
     VkSurfaceKHR GetSurface()            { return surface_; }
 
