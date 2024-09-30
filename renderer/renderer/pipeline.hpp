@@ -21,7 +21,6 @@ public:
     VkPipeline GetGraphicsPipiline() { return graphics_pipeline_;}
 
 private:
-    void CreateRenderPass();
     void CreatePipeline();
 
     std::vector<char> ReadFile(std::string filname);

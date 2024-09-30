@@ -33,6 +33,7 @@ private:
     void CreateSurface();
     void PickPhysicalDevice();
     void CreateLogicalDevice();
+    void CreateCommapdPool();
 
 private:
     // window for rendering to it
@@ -50,6 +51,10 @@ private:
     // device_ queues
     VkQueue graphics_queue_;
     VkQueue present_queue_;
+
+    // command pool
+    VkCommandPool command_pool_;
+
 };
 
 } // namespace renderer

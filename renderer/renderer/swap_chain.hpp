@@ -9,6 +9,10 @@
 // renderer includes
 #include <renderer/renderer/device.hpp>
 
+
+#define MAX_FRAMES_IN_FLIGHT 2
+
+
 namespace renderer {
 
 class SwapChain
@@ -17,17 +21,24 @@ public:
     SwapChain(engine::Window& window, Device& device);
     ~SwapChain();
 
-    void RecreateSwapChain();
+    void BeginFrame();
+    VkCommandBuffer BeginRenderPass();
+    void EndRenderPass();
+    void EndFrame();
 
-    VkFormat GetImageFormat() { return swap_chain_image_format_; }
-    VkExtent2D GetExtent()    { return swap_chain_extent_; }
-
-    VkSwapchainKHR GetSwapChain() { return swap_chain_; }
-    std::vector<VkImageView>& GetImageViews() { return swap_chain_image_views_; }
 
 private:
     void CreateSwapChain();
     void CreateSwapChainImages(); 
+
+
+    void CreateFramebuffers();
+    void CreateCommandBuffers();
+    void CreateSyncObjects();
+
+    void RecordCommandBuffer(VkCommandBuffer command_buffer, uint32_t image_index);
+    void RecreateSwapChain();
+
 
 private:
     VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
@@ -44,6 +55,21 @@ private:
     // SwapChain format end extent
     VkFormat swap_chain_image_format_;
     VkExtent2D swap_chain_extent_;
+
+    // Framebuffers
+    std::vector<VkFramebuffer> swap_chain_framebuffers_;
+
+    // Commanfd buffers
+    std::vector<VkCommandBuffer> command_buffers_;
+
+    // Sync objects
+    std::vector<VkSemaphore> image_available_semaphores_;
+    std::vector<VkSemaphore> render_finished_semaphores_;
+    std::vector<VkFence> in_flight_fences_;
+    uint32_t current_frame_ = 0;
+
+    // render pass
+    VkRenderPass render_pass_;
 };
 
 
