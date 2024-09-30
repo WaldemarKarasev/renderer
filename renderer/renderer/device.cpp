@@ -171,21 +171,4 @@ void Device::CreateLogicalDevice()
     vkGetDeviceQueue(device_, indices.present_family_.value(), 0, &present_queue_);
 }
 
-void Device::CreateCommandPools()
-{
-    detail::QueueFamilyIndices indices = detail::FindQueueFamilies(physical_device_, surface_);
-
-    VkCommandPoolCreateInfo pool_info{};
-    pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    pool_info.queueFamilyIndex = indices.graphics_family_.value();
-    pool_info.flags = 
-        VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-    
-    if (vkCreateCommandPool(device_, &pool_info, nullptr, &command_pool_) != VK_SUCCESS)
-    {
-        std::cerr << "Failed to create Vulkan commang poll!" << std::endl;
-        std::abort();
-    }
-}
-
 } // namespace renderer

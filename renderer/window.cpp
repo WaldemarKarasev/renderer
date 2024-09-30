@@ -40,6 +40,13 @@ void Window::CreateSurface(VkInstance instance, VkSurfaceKHR *surface)
     }
 }
 
+void Window::GetFrameBufferSize(int* width, int* height)
+{
+    glfwGetFramebufferSize(window_, width, height);
+    glfwWaitEvents();
+}
+
+
 void Window::FrameBufferResizeCallback(GLFWwindow* window, int width, int height)
 {
     auto window_impl = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));

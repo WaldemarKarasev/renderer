@@ -2,7 +2,7 @@
 
 #include <renderer/window.hpp>
 #include <renderer/renderer/device.hpp>
-
+#include <renderer/renderer/renderer.hpp>
 namespace engine {
 
 class App
@@ -11,11 +11,10 @@ public:
     void Run();
 
 private:
-    bool running_{false};
+    bool running_{true};
 
-    engine::Window window{"Triangle", 1920, 1080};
-    renderer::Device device_{window};
-
+    engine::Window window_{"Triangle", 1920, 1080};
+    renderer::Renderer renderer_{window_};
 };
 
 } // namespace renderer

@@ -9,6 +9,7 @@ SwapChain::SwapChain(engine::Window& window, Device& device)
     , device_{device}
 {
     CreateSwapChain();
+    CreateSwapChainImages();
 }
 
 SwapChain::~SwapChain()
@@ -20,6 +21,25 @@ SwapChain::~SwapChain()
 
     vkDestroySwapchainKHR(device_.GetDevice(), swap_chain_, nullptr);
 }
+
+void SwapChain::RecreateSwapChain()
+{
+    int width = 0;
+    int height = 0;
+
+    while (width == 0 || height == 0)
+    {
+        window_.GetFrameBufferSize(&width, &height);
+    }
+
+    vkDeviceWaitIdle(device_.GetDevice());
+    
+    CleanupSwapChain();
+
+    CreateSwapChain();
+    CreateSwapChainImages();
+}
+
 
 void SwapChain::CreateSwapChain()
 {

@@ -21,6 +21,9 @@ public:
     VkPhysicalDevice GetPhysicalDevice() { return physical_device_; }
     VkSurfaceKHR GetSurface()            { return surface_; }
 
+    VkQueue GetGraphicsQueue() { return graphics_queue_; }
+    VkQueue GetPresentQueue() { return present_queue_; }
+
 private:
     void InitVulkan();
 
@@ -30,7 +33,6 @@ private:
     void CreateSurface();
     void PickPhysicalDevice();
     void CreateLogicalDevice();
-    void CreateCommandPools();
 
 private:
     // window for rendering to it
@@ -48,9 +50,6 @@ private:
     // device_ queues
     VkQueue graphics_queue_;
     VkQueue present_queue_;
-
-    // devide_ command pool
-    VkCommandPool command_pool_;
 };
 
 } // namespace renderer

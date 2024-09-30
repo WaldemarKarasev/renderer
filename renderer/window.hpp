@@ -24,6 +24,8 @@ public:
     // surface creation
     void CreateSurface(VkInstance instance, VkSurfaceKHR *surface);
 
+    void GetFrameBufferSize(int* width, int* height);
+
 private:
     void InitWindow();
 

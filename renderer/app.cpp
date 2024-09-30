@@ -8,8 +8,9 @@ void App::Run()
 {
     while(running_)
     {
-        std::cout << "loop" << std::endl;
         // main loop
+        std::cout << "loop" << std::endl;
+        renderer.DrawFrame();
     }
 }
 
