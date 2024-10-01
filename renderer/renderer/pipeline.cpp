@@ -18,7 +18,7 @@ Pipeline::~Pipeline()
     vkDestroyPipelineLayout(device_.GetDevice(), pipeline_layout_, nullptr);
 }
 
-void Pipeline::CreatePipeline(SwapChainInfo swap_chain_info);
+void Pipeline::CreatePipeline(SwapChainInfo swap_chain_info)
 {
     auto vert_shader_code = ReadFile("shaders/vert.spv");
     auto frag_shader_code = ReadFile("shader/frag.spv");
@@ -90,34 +90,34 @@ void Pipeline::CreatePipeline(SwapChainInfo swap_chain_info);
         VK_DYNAMIC_STATE_SCISSOR
     };
     VkPipelineDynamicStateCreateInfo dynamic_state{};
-    dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamic_states.size());
-    dynamicState.pDynamicStates = dynamic_states.data();
+    dynamic_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+    dynamic_state.dynamicStateCount = static_cast<uint32_t>(dynamic_states.size());
+    dynamic_state.pDynamicStates = dynamic_states.data();
 
     VkPipelineLayoutCreateInfo pipeline_layout_info{};
-    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 0;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipeline_layout_info.setLayoutCount = 0;
+    pipeline_layout_info.pushConstantRangeCount = 0;
 
     if (vkCreatePipelineLayout(device_.GetDevice(), &pipeline_layout_info, nullptr, &pipeline_layout_) != VK_SUCCESS) {
         throw std::runtime_error("failed to create pipeline layout!");
     }
 
     VkGraphicsPipelineCreateInfo pipeline_info{};
-    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.stageCount = 2;
-    pipelineInfo.pStages = shader_stages;
-    pipelineInfo.pVertexInputState = &vertex_input_info;
-    pipelineInfo.pInputAssemblyState = &input_assembly;
-    pipelineInfo.pViewportState = &viewport_state;
-    pipelineInfo.pRasterizationState = &rasterizer;
-    pipelineInfo.pMultisampleState = &multisampling;
-    pipelineInfo.pColorBlendState = &color_blending;
-    pipelineInfo.pDynamicState = &dynamic_state;
-    pipelineInfo.layout = pipeline_layout;
-    pipelineInfo.renderPass = swap_chain_info.render_pass_;
-    pipelineInfo.subpass = 0;
-    pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+    pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipeline_info.stageCount = 2;
+    pipeline_info.pStages = shader_stages;
+    pipeline_info.pVertexInputState = &vertex_input_info;
+    pipeline_info.pInputAssemblyState = &input_assembly;
+    pipeline_info.pViewportState = &viewport_state;
+    pipeline_info.pRasterizationState = &rasterizer;
+    pipeline_info.pMultisampleState = &multisampling;
+    pipeline_info.pColorBlendState = &color_blending;
+    pipeline_info.pDynamicState = &dynamic_state;
+    pipeline_info.layout = pipeline_layout_;
+    pipeline_info.renderPass = swap_chain_info.render_pass_;
+    pipeline_info.subpass = 0;
+    pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
 
     if (vkCreateGraphicsPipelines(device_.GetDevice(), VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &graphics_pipeline_) != VK_SUCCESS) {
         throw std::runtime_error("failed to create graphics pipeline!");
@@ -127,7 +127,7 @@ void Pipeline::CreatePipeline(SwapChainInfo swap_chain_info);
     vkDestroyShaderModule(device_.GetDevice(), vert_shader_module, nullptr);
 }
 
-std::vector<char> Pipeline::ReadFile(std::string filname)
+std::vector<char> Pipeline::ReadFile(std::string filename)
 {
     std::ifstream file(filename);
 
@@ -157,7 +157,7 @@ VkShaderModule Pipeline::CreateShaderModule(std::vector<char>& code)
 
     if (vkCreateShaderModule(device_.GetDevice(), &create_info, nullptr, &shader_module) != VK_SUCCESS) 
     {
-        std::throw std::runtime_error("Failed to create shader module");
+        throw std::runtime_error("Failed to create shader module");
     }
 
     return shader_module;

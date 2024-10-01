@@ -38,6 +38,9 @@ public:
 
     SwapChainInfo GetSwapChainInfo() { return SwapChainInfo{render_pass_}; }
 
+    void AquireImage(uint32_t current_frame, uint32_t* image_index);
+    void SubmitToDevice(uint32_t current_frame, uint32_t* image_index);
+
 private:
     void CreateSwapChain();
     void CreateSwapChainImageViews(); 
@@ -49,6 +52,7 @@ private:
     void RecordCommandBuffer(VkCommandBuffer command_buffer, uint32_t image_index);
     void RecreateSwapChain();
 
+    void CreateRenderPass();
 
 private:
     VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);

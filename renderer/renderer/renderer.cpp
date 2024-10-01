@@ -1,11 +1,13 @@
 #include <renderer/renderer/renderer.hpp>
 
+#include <stdexcept>
 
 namespace renderer
 {
 
 Renderer::Renderer(engine::Window& window)
-    : device_{window_}
+    : window_{window}
+    , device_{window_}
     , swap_chain_{window_, device_}
     , pipeline_{device_, swap_chain_.GetSwapChainInfo()}
 {
@@ -55,7 +57,8 @@ void Renderer::CreateCommandBuffers()
     alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     alloc_info.commandBufferCount = (uint32_t) command_buffers_.size();
 
-    if (vkAllocateCommandBuffers(device_.GetDevice(), &alloc_info, command_buffers_.data()) != VK_SUCCESS) {
+    if (vkAllocateCommandBuffers(device_.GetDevice(), &alloc_info, command_buffers_.data()) != VK_SUCCESS) 
+    {
         throw std::runtime_error("failed to allocate command buffers!");
     }
 }

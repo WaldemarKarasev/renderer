@@ -23,11 +23,12 @@ public:
 private:
     void CreatePipeline(SwapChainInfo swap_chain_info);
 
-    std::vector<char> ReadFile(std::string filname);
+
+
+    std::vector<char> ReadFile(std::string filename);
     VkShaderModule CreateShaderModule(std::vector<char>& code);
 private:
     Device& device_;
-    SwapChain& swap_chain_;
 
     VkPipelineLayout pipeline_layout_;
     VkPipeline graphics_pipeline_;

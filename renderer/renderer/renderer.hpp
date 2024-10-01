@@ -1,9 +1,10 @@
 #pragma once
 
 // std
+#include <vector>
 
 // vulkan
-#incldue <vulkan/vulkan.h>
+#include <vulkan/vulkan.h>
 
 
 // renderer includes
@@ -41,11 +42,14 @@ private:
     SwapChain swap_chain_;
     Pipeline pipeline_;
     
-    bool framebuffer_resized_ = false;
 
+    // image conuter == current frame index
+    uint32_t current_frame_ = 0;
 
     // Commanfd buffers
     std::vector<VkCommandBuffer> command_buffers_;
+    bool framebuffer_resized_ = false;
+
 };
 
 } // namespace renderer
