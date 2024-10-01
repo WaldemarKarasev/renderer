@@ -10,30 +10,40 @@
 #include <renderer/renderer/device.hpp>
 
 
-#define MAX_FRAMES_IN_FLIGHT 2
 
 
 namespace renderer {
 
+
+struct SwapChainInfo
+{
+    // render pass
+    VkRenderPass render_pass_;
+};
+
 class SwapChain
 {
+public:
+    static constexpr size_t MAX_FRAMES_IN_FLIGHT = 2;
+
+
 public:
     SwapChain(engine::Window& window, Device& device);
     ~SwapChain();
 
-    void BeginFrame();
-    VkCommandBuffer BeginRenderPass();
+    VkCommandBuffer BeginFrame();
+    void BeginRenderPass();
     void EndRenderPass();
     void EndFrame();
 
+    SwapChainInfo GetSwapChainInfo() { return SwapChainInfo{render_pass_}; }
 
 private:
     void CreateSwapChain();
-    void CreateSwapChainImages(); 
+    void CreateSwapChainImageViews(); 
 
 
     void CreateFramebuffers();
-    void CreateCommandBuffers();
     void CreateSyncObjects();
 
     void RecordCommandBuffer(VkCommandBuffer command_buffer, uint32_t image_index);
@@ -58,9 +68,6 @@ private:
 
     // Framebuffers
     std::vector<VkFramebuffer> swap_chain_framebuffers_;
-
-    // Commanfd buffers
-    std::vector<VkCommandBuffer> command_buffers_;
 
     // Sync objects
     std::vector<VkSemaphore> image_available_semaphores_;

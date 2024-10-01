@@ -3,6 +3,8 @@
 // std
 
 // vulkan
+#incldue <vulkan/vulkan.h>
+
 
 // renderer includes
 #include <renderer/window.hpp>
@@ -23,11 +25,14 @@ public:
     ~Renderer();
 
 
-    void BeginFrame();
-    VkCommandBuffer BeginRenderPass();
+    VkCommandBuffer BeginFrame();
+    void BeginRenderPass();
     void Render(VkCommandBuffer command_buffer);
     void EndRenderPass();
     void EndFrame();
+
+private:
+    void CreateCommandBuffers();
 
 
 private:
@@ -35,9 +40,12 @@ private:
     Device device_;
     SwapChain swap_chain_;
     Pipeline pipeline_;
-
+    
     bool framebuffer_resized_ = false;
 
+
+    // Commanfd buffers
+    std::vector<VkCommandBuffer> command_buffers_;
 };
 
 } // namespace renderer

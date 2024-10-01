@@ -6,11 +6,10 @@
 
 namespace renderer {
 
-Pipeline::Pipeline(Device& device, SwapChain& swap_chain)
+Pipeline::Pipeline(Device& device, SwapChainInfo swap_chain_info)
     : device_{device}
-    , swap_chain_{swap_chain}
 {
-    CreatePipeline();
+    CreatePipeline(std::move(swap_chain_info));
 }
 
 Pipeline::~Pipeline()
@@ -19,7 +18,7 @@ Pipeline::~Pipeline()
     vkDestroyPipelineLayout(device_.GetDevice(), pipeline_layout_, nullptr);
 }
 
-void Pipeline::CreatePipeline()
+void Pipeline::CreatePipeline(SwapChainInfo swap_chain_info);
 {
     auto vert_shader_code = ReadFile("shaders/vert.spv");
     auto frag_shader_code = ReadFile("shader/frag.spv");
@@ -116,7 +115,7 @@ void Pipeline::CreatePipeline()
     pipelineInfo.pColorBlendState = &color_blending;
     pipelineInfo.pDynamicState = &dynamic_state;
     pipelineInfo.layout = pipeline_layout;
-    pipelineInfo.renderPass = render_pass_;
+    pipelineInfo.renderPass = swap_chain_info.render_pass_;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
@@ -124,8 +123,8 @@ void Pipeline::CreatePipeline()
         throw std::runtime_error("failed to create graphics pipeline!");
     }
 
-    vkDestroyShaderModule(device, frag_shader_module, nullptr);
-    vkDestroyShaderModule(device, vert_shader_module, nullptr);
+    vkDestroyShaderModule(device_.GetDevice(), frag_shader_module, nullptr);
+    vkDestroyShaderModule(device_.GetDevice(), vert_shader_module, nullptr);
 }
 
 std::vector<char> Pipeline::ReadFile(std::string filname)
@@ -158,8 +157,7 @@ VkShaderModule Pipeline::CreateShaderModule(std::vector<char>& code)
 
     if (vkCreateShaderModule(device_.GetDevice(), &create_info, nullptr, &shader_module) != VK_SUCCESS) 
     {
-        std::cerr << "Failed to create shader module" << std::endl;
-        std::abort();
+        std::throw std::runtime_error("Failed to create shader module");
     }
 
     return shader_module;

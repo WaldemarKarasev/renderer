@@ -15,13 +15,13 @@ namespace renderer {
 class Pipeline
 {
 public:
-    Pipeline(Device& device, SwapChain& swap_chain);
+    Pipeline(Device& device, SwapChainInfo swap_chain);
     ~Pipeline();
 
-    VkPipeline GetGraphicsPipiline() { return graphics_pipeline_;}
+    VkPipeline GetGraphicsPipeline() { return graphics_pipeline_;}
 
 private:
-    void CreatePipeline();
+    void CreatePipeline(SwapChainInfo swap_chain_info);
 
     std::vector<char> ReadFile(std::string filname);
     VkShaderModule CreateShaderModule(std::vector<char>& code);
@@ -29,7 +29,6 @@ private:
     Device& device_;
     SwapChain& swap_chain_;
 
-    VkRenderPass render_pass_;
     VkPipelineLayout pipeline_layout_;
     VkPipeline graphics_pipeline_;
 

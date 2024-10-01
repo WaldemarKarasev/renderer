@@ -9,7 +9,10 @@ SwapChain::SwapChain(engine::Window& window, Device& device)
     , device_{device}
 {
     CreateSwapChain();
-    CreateSwapChainImages();
+    CreateSwapChainImageViews();
+    CreateRenderPass();
+    CreateFramebuffers();
+    CreateSyncObjects();
 }
 
 SwapChain::~SwapChain()
@@ -30,7 +33,7 @@ SwapChain::~SwapChain()
     vkDestroyRenderPass(device_.GetDevice(), render_pass_, nullptr);    
 }
 
-void SwapChain::BeginFrame()
+VkCommandBuffer SwapChain::BeginFrame()
 {
     // begin frame
     vkWaitForFences(device_.GetDevice(), 1, &in_flight_fences_[current_frame_], VK_TRUE, UINT64_MAX);
@@ -41,7 +44,7 @@ void SwapChain::BeginFrame()
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
         RecreateSwapChain();
-        return;
+        return nullptr;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {
@@ -58,46 +61,9 @@ void SwapChain::BeginFrame()
     if (vkBeginCommandBuffer(command_buffers_[current_frame_], &begin_info) != VK_SUCCESS) {
         throw std::runtime_error("failed to begin recording command buffer!");
     }
-}
-
-VkCommandBuffer SwapChain::BeginRenderPass()
-{
-    VkRenderPassBeginInfo render_pass_info{};
-    render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    render_pass_info.renderPass = renderPass;
-    render_pass_info.framebuffer = swap_chain_framebuffers_[image_index];
-    render_pass_info.renderArea.offset = {0, 0};
-    render_pass_info.renderArea.extent = swap_chain_extent_;
-
-    VkClearValue clear_color = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
-    render_pass_info.clearValueCount = 1;
-    render_pass_info.pClearValues = &clear_color;
-
-    vkCmdBeginRenderPass(command_buffers_[current_frame_], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
-
-    VkViewport viewport{};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = (float)  swap_chain_extent_.width;
-    viewport.height = (float) swap_chain_extent_.height;
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(command_buffers_[current_frame_], 0, 1, &viewport);
-
-    VkRect2D scissor{};
-    scissor.offset = {0, 0};
-    scissor.extent = swap_chain_extent_;
-    vkCmdSetScissor(command_buffers_[current_frame_], 0, 1, &scissor);
 
     return command_buffers_[current_frame_];
 }
-
-void SwapChain::EndRenderPass()
-{
-    // end render pass
-    vkCmdEndRenderPass(command_buffers_[current_frame_]);
-}
-
 void SwapChain::EndFrame()
 {
     if (vkEndCommandBuffer(command_buffers_[current_frame_]) != VK_SUCCESS) {
@@ -150,6 +116,41 @@ void SwapChain::EndFrame()
 }
 
 
+void SwapChain::BeginRenderPass()
+{
+    VkRenderPassBeginInfo render_pass_info{};
+    render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    render_pass_info.renderPass = renderPass;
+    render_pass_info.framebuffer = swap_chain_framebuffers_[image_index];
+    render_pass_info.renderArea.offset = {0, 0};
+    render_pass_info.renderArea.extent = swap_chain_extent_;
+
+    VkClearValue clear_color = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+    render_pass_info.clearValueCount = 1;
+    render_pass_info.pClearValues = &clear_color;
+
+    vkCmdBeginRenderPass(command_buffers_[current_frame_], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
+
+    VkViewport viewport{};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = (float)  swap_chain_extent_.width;
+    viewport.height = (float) swap_chain_extent_.height;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    vkCmdSetViewport(command_buffers_[current_frame_], 0, 1, &viewport);
+
+    VkRect2D scissor{};
+    scissor.offset = {0, 0};
+    scissor.extent = swap_chain_extent_;
+    vkCmdSetScissor(command_buffers_[current_frame_], 0, 1, &scissor);
+}
+
+void SwapChain::EndRenderPass()
+{
+    // end render pass
+    vkCmdEndRenderPass(command_buffers_[current_frame_]);
+}
 
 void SwapChain::CreateSwapChain()
 {
@@ -209,7 +210,7 @@ void SwapChain::CreateSwapChain()
     swap_chain_extent_ = extent;
 }   
 
-void SwapChain::CreateSwapChainImages()
+void SwapChain::CreateSwapChainImageViews()
 {
     swap_chain_image_views_.resize(swap_chain_images_.size());
 

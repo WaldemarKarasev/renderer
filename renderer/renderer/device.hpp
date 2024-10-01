@@ -24,6 +24,8 @@ public:
     VkQueue GetGraphicsQueue() { return graphics_queue_; }
     VkQueue GetPresentQueue() { return present_queue_; }
 
+    VkCommandPool GetCommandPool() { return command_pool_; }
+
 private:
     void InitVulkan();
 
