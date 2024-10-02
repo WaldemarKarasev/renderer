@@ -1,11 +1,21 @@
 #include <renderer/renderer/swap_chain.hpp>
 
+
+
 // std
 #include <stdexcept>
+
+#include <algorithm>
+#include <limits>
+
+
+// window
+#include <renderer/window.hpp>
 
 // utils includes
 #include <renderer/renderer/detail/physical_device_utils.hpp>
 #include <renderer/renderer/detail/debug_utils.hpp>
+#include <renderer/renderer/detail/swap_chain_utils.hpp>
 
 
 
@@ -40,43 +50,18 @@ SwapChain::~SwapChain()
     vkDestroyRenderPass(device_.GetDevice(), render_pass_, nullptr);    
 }
 
-VkCommandBuffer SwapChain::BeginFrame(uint32_t* image_index)
+VkResult SwapChain::AquireImage(uint32_t* image_index)
 {
-    // begin frame
+        // begin frame
     vkWaitForFences(device_.GetDevice(), 1, &in_flight_fences_[current_frame_], VK_TRUE, UINT64_MAX);
 
-    uint32_t image_index;
-    VkResult result = vkAcquireNextImageKHR(device_.GetDevice(), swap_chain_, UINT64_MAX, image_available_semaphores_[current_frame_], VK_NULL_HANDLE, &image_index);
+    VkResult result = vkAcquireNextImageKHR(device_.GetDevice(), swap_chain_, UINT64_MAX, image_available_semaphores_[current_frame_], VK_NULL_HANDLE, image_index);
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR)
-    {
-        RecreateSwapChain();
-        return nullptr;
-    }
-    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
-    {
-        throw std::runtime_error("Failed to acquire swap chain image");
-    }
-
-    vkResetFences(device_.GetDevice(), 1, &in_flight_fences_[current_frame_]);
-    vkResetCommandBuffer(command_buffers_[current_frame_]);
-
-    // begin render pass
-    VkCommandBufferBeginInfo begin_info{};
-    begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-    if (vkBeginCommandBuffer(command_buffers_[current_frame_], &begin_info) != VK_SUCCESS) {
-        throw std::runtime_error("failed to begin recording command buffer!");
-    }
-
-    return command_buffers_[current_frame_];
+    return result;
 }
-void SwapChain::EndFrame(VkCommandBuffer command_buffer, uint32_t image_index)
-{
-    if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS) {
-        throw std::runtime_error("failed to record command buffer!");
-    }    
 
+VkResult SwapChain::SubmitCommandBuffer(VkCommandBuffer command_buffer, uint32_t* image_index)
+{
     VkSubmitInfo submit_info{};
     submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -94,6 +79,7 @@ void SwapChain::EndFrame(VkCommandBuffer command_buffer, uint32_t image_index)
     submit_info.signalSemaphoreCount = 1;
     submit_info.pSignalSemaphores = signal_semaphores;
 
+    vkResetFences(device_.GetDevice(), 1, &in_flight_fences_[current_frame_]);
     if (vkQueueSubmit(device_.GetGraphicsQueue(), 1, &submit_info, in_flight_fences_[current_frame_]) != VK_SUCCESS) {        
         throw std::runtime_error("failed to submit draw command buffer!");
     }
@@ -110,54 +96,13 @@ void SwapChain::EndFrame(VkCommandBuffer command_buffer, uint32_t image_index)
 
     present_info.pImageIndices = image_index;
 
-    result = vkQueuePresentKHR(device_.GetPresentQueue(), &present_info);
-
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebuffer_resized_) {
-        framebuffer_resized_ = false;
-        RecreateSwapChain();
-    } else if (result != VK_SUCCESS) {
-        throw std::runtime_error("failed to present swap chain image!");
-    }
+    VkResult result = vkQueuePresentKHR(device_.GetPresentQueue(), &present_info);
 
     current_frame_ = (current_frame_ + 1) % MAX_FRAMES_IN_FLIGHT;
+
+    return result;
 }
 
-
-void SwapChain::BeginRenderPass(VkCommadBuffer command_buffer, uint32_t* image_index)
-{
-    VkRenderPassBeginInfo render_pass_info{};
-    render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    render_pass_info.renderPass = render_pass_;
-    render_pass_info.framebuffer = swap_chain_framebuffers_[*image_index];
-    render_pass_info.renderArea.offset = {0, 0};
-    render_pass_info.renderArea.extent = swap_chain_extent_;
-
-    VkClearValue clear_color = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
-    render_pass_info.clearValueCount = 1;
-    render_pass_info.pClearValues = &clear_color;
-
-    vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
-
-    VkViewport viewport{};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = (float)  swap_chain_extent_.width;
-    viewport.height = (float) swap_chain_extent_.height;
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(command_buffer, 0, 1, &viewport);
-
-    VkRect2D scissor{};
-    scissor.offset = {0, 0};
-    scissor.extent = swap_chain_extent_;
-    vkCmdSetScissor(command_buffer, 0, 1, &scissor);
-}
-
-void SwapChain::EndRenderPass(VkCommandBuffer command_buffer)
-{
-    // end render pass
-    vkCmdEndRenderPass(command_buffer);
-}
 
 
 
@@ -180,7 +125,7 @@ void SwapChain::CreateSwapChain()
 
     VkSurfaceFormatKHR surface_format = detail::ChooseSwapSurfaceFormat(swap_chain_support.formats_);
     VkPresentModeKHR present_mode = detail::ChooseSwapPresentMode(swap_chain_support.present_modes_);
-    VkExtent2D extent = ChooseSwapExtent(swap_chain_support.capabilities_)
+    VkExtent2D extent = ChooseSwapExtent(swap_chain_support.capabilities_);
 
     uint32_t image_count = swap_chain_support.capabilities_.minImageCount + 1;
     if (swap_chain_support.capabilities_.maxImageCount > 9 && image_count > swap_chain_support.capabilities_.maxImageCount)
@@ -200,11 +145,11 @@ void SwapChain::CreateSwapChain()
     create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
     detail::QueueFamilyIndices indices = detail::FindQueueFamilies(device_.GetPhysicalDevice(), device_.GetSurface());
-    uint32_t queue_family_indices[] = {indices.graphics_family_.value(), indices.present_family_.value()}:
+    uint32_t queue_family_indices[] = {indices.graphics_family_.value(), indices.present_family_.value()};
 
     if (indices.graphics_family_ != indices.present_family_)
     {
-        create_info.imangeSharingMode = VK_SHARING_MODE_CONCURRENT;
+        create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         create_info.queueFamilyIndexCount = 2;
         create_info.pQueueFamilyIndices = queue_family_indices;
     }
@@ -215,22 +160,27 @@ void SwapChain::CreateSwapChain()
 
     create_info.preTransform = swap_chain_support.capabilities_.currentTransform;
     create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    create_info.presentMode = preset_mode;
+    create_info.presentMode = present_mode;
     create_info.clipped = VK_TRUE;
 
-    if (vkCreateSwapChainKHR(device_.GetDevice(), &create_info, nullptr, &swap_chain_) != VK_SUCCESS)
+    if (vkCreateSwapchainKHR(device_.GetDevice(), &create_info, nullptr, &swap_chain_) != VK_SUCCESS)
     {
-        std::cerr << "Failed to create Vulkan swap chain!" << std::endl;
-        std::abort();
+        throw std::runtime_error("Failed to create Vulkan swap chain!");
     }
 
-    vkCreateSwapChainImageKHR(device_.GetDevice(), swap_chain_, &image_count, nullptr);
+    vkGetSwapchainImagesKHR(device_.GetDevice(), swap_chain_, &image_count, nullptr);
     swap_chain_images_.resize(image_count);
-    vkGetSwapChainImageKHR(device_.GetDevice(), swap_chain_, &image_count, swap_chain_images_.data());
+    vkGetSwapchainImagesKHR(device_.GetDevice(), swap_chain_, &image_count, swap_chain_images_.data());
 
-    swap_chain_image_format_ = surface_format_.format;
+    swap_chain_image_format_ = surface_format.format;
     swap_chain_extent_ = extent;
 }   
+
+void SwapChain::CleanupSwapChain()
+{
+
+}
+
 
 void SwapChain::CreateSwapChainImageViews()
 {
@@ -239,8 +189,8 @@ void SwapChain::CreateSwapChainImageViews()
     for (size_t i = 0; i < swap_chain_image_views_.size(); ++i)
     {
         VkImageViewCreateInfo create_info{};
-        create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_FORMAT_INFO;
-        crete_info.image = swap_chain_images_[i];
+        create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        create_info.image = swap_chain_images_[i];
         create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
         create_info.format = swap_chain_image_format_;
         create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -255,11 +205,11 @@ void SwapChain::CreateSwapChainImageViews()
 
         if (vkCreateImageView(device_.GetDevice(), &create_info, nullptr, &swap_chain_image_views_[i]) != VK_SUCCESS)
         {
-            std::cerr << "Failed to create image views!" << std::endl;
-            std::abort();
+            throw std::runtime_error("Failed to create image views!");
         } 
     }
 }
+
 
 
 VkExtent2D SwapChain::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
@@ -273,7 +223,7 @@ VkExtent2D SwapChain::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilit
         int width;
         int height;
 
-        glfwGetFramebufferSize(window_, &width, &height);
+        glfwGetFramebufferSize(window_.GetRawPtr(), &width, &height);
         VkExtent2D actualExtent = {
             static_cast<uint32_t>(width),
             static_cast<uint32_t>(height)
@@ -288,23 +238,23 @@ VkExtent2D SwapChain::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilit
 
 void SwapChain::CreateFramebuffers()
 {
-    auto image_views = swap_chain_.GetImageViews();
+    auto image_views =  swap_chain_image_views_;
     swap_chain_framebuffers_.resize(image_views.size());
 
     for (size_t i = 0; i < image_views.size(); ++i)
     {
         VkImageView attachments[] = {image_views[i]};
 
-        VkFramebufferCreateInfo framebuffer_info{};
-        framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebuffer_info.renderPass = renderPass;
-        framebuffer_info.attachmentCount = 1;
-        framebuffer_info.pAttachments = attachments;
-        framebuffer_info.width = swapChainExtent.width;
-        framebuffer_info.height = swapChainExtent.height;
-        framebuffer_info.layers = 1;
+        VkFramebufferCreateInfo frame_buffer_info{};
+        frame_buffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        frame_buffer_info.renderPass = render_pass_;
+        frame_buffer_info.attachmentCount = 1;
+        frame_buffer_info.pAttachments = attachments;
+        frame_buffer_info.width = swap_chain_extent_.width;
+        frame_buffer_info.height = swap_chain_extent_.height;
+        frame_buffer_info.layers = 1;
 
-        if (vkCreateFrameBuffer(device_.GetDevice(), &frame_buffer_info, nullptr, &swap_chain_framebuffers_[i]) != VK_SUCCESS)
+        if (vkCreateFramebuffer(device_.GetDevice(), &frame_buffer_info, nullptr, &swap_chain_framebuffers_[i]) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create framebuffer");
         }
@@ -350,14 +300,14 @@ void SwapChain::RecreateSwapChain()
     CleanupSwapChain();
 
     CreateSwapChain();
-    CreateSwapChainImages();
+    CreateSwapChainImageViews();
     CreateFramebuffers();
 }
 
 void SwapChain::CreateRenderPass()
 {
     VkAttachmentDescription color_attachment{};
-    color_attachment.format = swap_chain_.GetImageFormat();
+    color_attachment.format = swap_chain_image_format_;
     color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
     color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -368,12 +318,12 @@ void SwapChain::CreateRenderPass()
 
     VkAttachmentReference color_attachment_ref{};
     color_attachment_ref.attachment = 0;
-    color_attachmetnt.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    // color_attachmetnt.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // !!!!!!!!!!!
 
     VkSubpassDescription subpass{};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.pColorAttachments = &color_attachment_ref;
 
     VkSubpassDependency dependency{};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -386,7 +336,7 @@ void SwapChain::CreateRenderPass()
     VkRenderPassCreateInfo render_pass_info{};
     render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     render_pass_info.attachmentCount = 1;
-    render_pass_info.pAttachments = &colorAttachment;
+    render_pass_info.pAttachments = &color_attachment;
     render_pass_info.subpassCount = 1;
     render_pass_info.pSubpasses = &subpass;
     render_pass_info.dependencyCount = 1;

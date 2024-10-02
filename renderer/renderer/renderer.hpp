@@ -30,21 +30,23 @@ public:
     void BeginRenderPass();
     void Render(VkCommandBuffer command_buffer);
     void EndRenderPass();
-    void EndFrame();
+    void EndFrame(VkCommandBuffer command_buffer);
+
+    
 
 private:
     void CreateCommandBuffers();
-
+    void RecreateSwapChain();
 
 private:
     engine::Window& window_;
     Device device_;
     SwapChain swap_chain_;
-    Pipeline pipeline_;
+    Pipeline pipeline_; // triangle pipeline
     
 
     // image conuter == current frame index
-    uint32_t current_frame_ = 0;
+    uint32_t current_image_index_ = 0;
 
     // Commanfd buffers
     std::vector<VkCommandBuffer> command_buffers_;

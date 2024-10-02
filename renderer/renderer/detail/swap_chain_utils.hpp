@@ -10,16 +10,20 @@ namespace renderer::detail {
 
 inline VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& available_formats)
 {
+    VkSurfaceFormatKHR selected_format;
     for (const auto& available_format : available_formats)
     {
         if (available_format.format == VK_FORMAT_B8G8R8A8_SRGB && available_format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
         {
-            return available_format;
+            selected_format = available_format;
+            break;
         }
     }
+
+    return selected_format;
 }
 
-inline VkPresentMode ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& available_present_modes)
+inline VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& available_present_modes)
 {
     for (const auto& available_present_mode : available_present_modes)
     {

@@ -25,6 +25,9 @@ public:
     void CreateSurface(VkInstance instance, VkSurfaceKHR *surface);
 
     void GetFrameBufferSize(int* width, int* height);
+    
+    GLFWwindow* GetRawPtr() { return window_; } // TODO: remove this function
+
 
 private:
     void InitWindow();

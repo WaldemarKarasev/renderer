@@ -15,7 +15,7 @@ void App::Run()
             renderer_.BeginRenderPass();
             renderer_.Render(command_buffer);
             renderer_.EndRenderPass();
-            renderer_.EndFrame();
+            renderer_.EndFrame(command_buffer);
         }
         else
         {
