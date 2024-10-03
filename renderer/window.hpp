@@ -25,7 +25,7 @@ public:
     void CreateSurface(VkInstance instance, VkSurfaceKHR *surface);
 
     void GetFrameBufferSize(int* width, int* height);
-    VkExtent GetExtent();
+    VkExtent2D GetExtent();
     
     bool ShouldClose() { return glfwWindowShouldClose(window_); }
 

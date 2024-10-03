@@ -42,6 +42,8 @@ void Device::InitVulkan()
     SetupDebugMessenger();
     CreateSurface();
     PickPhysicalDevice();
+    CreateLogicalDevice();
+    CreateCommapdPool();
 }
 
 void Device::CreateInstance()
@@ -163,9 +165,8 @@ void Device::CreateLogicalDevice()
 
     if (vkCreateDevice(physical_device_, &create_info, nullptr, &device_) != VK_SUCCESS)
     {
-        std::cerr << "Failed to create Vulkan Logical device" << std::endl;
-        std::abort();
-    }
+        throw std::runtime_error("Failed to create Vulkan Logical device");
+    }   
 
     vkGetDeviceQueue(device_, indices.graphics_family_.value(), 0, &graphics_queue_);
     vkGetDeviceQueue(device_, indices.present_family_.value(), 0, &present_queue_);

@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <limits>
 
-
+#include <iostream>
 // window
 #include <renderer/window.hpp>
 
@@ -113,7 +113,7 @@ void SwapChain::CreateSwapChain()
     VkExtent2D extent = ChooseSwapExtent(swap_chain_support.capabilities_);
 
     uint32_t image_count = swap_chain_support.capabilities_.minImageCount + 1;
-    if (swap_chain_support.capabilities_.maxImageCount > 9 && image_count > swap_chain_support.capabilities_.maxImageCount)
+    if (swap_chain_support.capabilities_.maxImageCount > 0 && image_count > swap_chain_support.capabilities_.maxImageCount)
     {
         image_count = swap_chain_support.capabilities_.maxImageCount;
     }
@@ -141,19 +141,22 @@ void SwapChain::CreateSwapChain()
     else
     {
         create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        create_info.queueFamilyIndexCount = 0;      // Optional
+        create_info.pQueueFamilyIndices = nullptr;  // Optional
     }
 
     create_info.preTransform = swap_chain_support.capabilities_.currentTransform;
     create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
     create_info.presentMode = present_mode;
     create_info.clipped = VK_TRUE;
-
+    create_info.oldSwapchain = nullptr;
     if (vkCreateSwapchainKHR(device_.GetDevice(), &create_info, nullptr, &swap_chain_) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create Vulkan swap chain!");
     }
 
     vkGetSwapchainImagesKHR(device_.GetDevice(), swap_chain_, &image_count, nullptr);
+      std::cout << "Swapcain creation::imagecount = " << image_count << std::endl;
     swap_chain_images_.resize(image_count);
     vkGetSwapchainImagesKHR(device_.GetDevice(), swap_chain_, &image_count, swap_chain_images_.data());
 
@@ -266,7 +269,7 @@ void SwapChain::CreateSyncObjects()
 }
 
 
-void RecreateSwapChain(VkExtent2D new_window_extent)
+void SwapChain::RecreateSwapChain(VkExtent2D new_window_extent)
 {
     window_extent_ = new_window_extent;
 

@@ -45,11 +45,9 @@ void Window::GetFrameBufferSize(int* width, int* height)
     glfwGetFramebufferSize(window_, width, height);
 }
 
-VkExtent Window::GetExtent()
+VkExtent2D Window::GetExtent()
 {
-    VkExtent2D window_extent;
-    GetFrameBufferSize(window_extent.width, window_extent.height);
-    return window_extent;
+    return {static_cast<uint32_t>(width_), static_cast<uint32_t>(height_)};
 }
 
 

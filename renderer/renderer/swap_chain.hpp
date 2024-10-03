@@ -50,8 +50,6 @@ private:
     
     void CleanupSwapChain();
 
-    void RecordCommandBuffer(VkCommandBuffer command_buffer, uint32_t image_index);
-
     void CreateRenderPass();
 
 private:
