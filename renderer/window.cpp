@@ -43,7 +43,13 @@ void Window::CreateSurface(VkInstance instance, VkSurfaceKHR *surface)
 void Window::GetFrameBufferSize(int* width, int* height)
 {
     glfwGetFramebufferSize(window_, width, height);
-    glfwWaitEvents();
+}
+
+VkExtent Window::GetExtent()
+{
+    VkExtent2D window_extent;
+    GetFrameBufferSize(window_extent.width, window_extent.height);
+    return window_extent;
 }
 
 

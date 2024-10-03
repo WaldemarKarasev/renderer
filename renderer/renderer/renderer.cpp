@@ -8,8 +8,9 @@ namespace renderer
 Renderer::Renderer(engine::Window& window)
     : window_{window}
     , device_{window_}
-    , swap_chain_{window_, device_}
+    , swap_chain_{device_, window_.GetExtent()}
     , pipeline_{device_, swap_chain_.GetSwapChainInfo()}
+    , current_image_index_{0}
 {
     CreateCommandBuffers();
 }
@@ -99,8 +100,8 @@ if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS) {
 
     VkResult result = swap_chain_.SubmitCommandBuffer(command_buffers_[current_image_index_], &current_image_index_);
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebuffer_resized_) {
-        framebuffer_resized_ = false;
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window_.WasResized()) {
+        window_.ResetResizedFlag();
         RecreateSwapChain();
     } else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
@@ -128,7 +129,17 @@ void Renderer::CreateCommandBuffers()
 
 void Renderer::RecreateSwapChain()
 {
-    swap_chain_.RecreateSwapChain();
+    VkExtent2D new_window_extent;
+
+    while (new_window_extent.width == 0 || new_window_extent.height == 0)
+    {
+        window_.GetFrameBufferSize(&new_window_extent.width, &new_window_extent.height);
+        glfwWaitEvents();
+    }
+
+    vkDeviceWaitIdle(device_.GetDevice());
+    
+    swap_chain_.RecreateSwapChain(new_window_extent);
 }
 
 

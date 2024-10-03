@@ -26,11 +26,9 @@ class SwapChain
 public:
     static constexpr size_t MAX_FRAMES_IN_FLIGHT = 2;
 
-
 public:
-    SwapChain(engine::Window& window, Device& device);
+    SwapChain(Device& device, VkExtent2D window_extent);
     ~SwapChain();
-
 
     SwapChainInfo GetSwapChainInfo() { return SwapChainInfo{render_pass_}; }
 
@@ -42,17 +40,15 @@ public:
     VkFramebuffer GetFrameBuffer(uint32_t image_index) { return swap_chain_framebuffers_[image_index]; }
     VkExtent2D GetExtent() { return swap_chain_extent_; }
 
-    void RecreateSwapChain();
+    void RecreateSwapChain(VkExtent2D new_window_extent);
+
 private:
     void CreateSwapChain();
-    void CleanupSwapChain();
-
     void CreateSwapChainImageViews(); 
-
-
-
     void CreateFramebuffers();
     void CreateSyncObjects();
+    
+    void CleanupSwapChain();
 
     void RecordCommandBuffer(VkCommandBuffer command_buffer, uint32_t image_index);
 
@@ -63,8 +59,8 @@ private:
 
 
 private:
-    engine::Window& window_;
     Device& device_;
+    VkExtent2D window_extent_;
 
     VkSwapchainKHR swap_chain_;
     std::vector<VkImage> swap_chain_images_;

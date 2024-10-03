@@ -50,8 +50,6 @@ private:
 
     // Commanfd buffers
     std::vector<VkCommandBuffer> command_buffers_;
-    bool framebuffer_resized_ = false;
-
 };
 
 } // namespace renderer

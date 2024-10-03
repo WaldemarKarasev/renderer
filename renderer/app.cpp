@@ -6,9 +6,11 @@ namespace engine {
 
 void App::Run()
 {
-    while(running_)
+    while(!window_.ShouldClose())
     {
         // main loop
+        glfwPollEvents();
+        
         std::cout << "loop" << std::endl;
         if (auto command_buffer = renderer_.BeginFrame())
         {

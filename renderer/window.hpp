@@ -25,8 +25,12 @@ public:
     void CreateSurface(VkInstance instance, VkSurfaceKHR *surface);
 
     void GetFrameBufferSize(int* width, int* height);
+    VkExtent GetExtent();
     
-    GLFWwindow* GetRawPtr() { return window_; } // TODO: remove this function
+    bool ShouldClose() { return glfwWindowShouldClose(window_); }
+
+    bool WasResized() { return framebuffer_resized_; }
+    void ResetResizedFlag() { framebuffer_resized_ = false; }
 
 
 private:

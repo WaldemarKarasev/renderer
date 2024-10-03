@@ -21,9 +21,9 @@
 
 namespace renderer {
 
-SwapChain::SwapChain(engine::Window& window, Device& device)
-    : window_{window}
-    , device_{device}
+SwapChain::SwapChain(Device& device, VkExtent2D window_extent)
+    : device_{device}
+    , window_extent_{window_extent}
 {
     CreateSwapChain();
     CreateSwapChainImageViews();
@@ -102,21 +102,6 @@ VkResult SwapChain::SubmitCommandBuffer(VkCommandBuffer command_buffer, uint32_t
 
     return result;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void SwapChain::CreateSwapChain()
@@ -220,13 +205,9 @@ VkExtent2D SwapChain::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilit
     }
     else
     {
-        int width;
-        int height;
-
-        glfwGetFramebufferSize(window_.GetRawPtr(), &width, &height);
         VkExtent2D actualExtent = {
-            static_cast<uint32_t>(width),
-            static_cast<uint32_t>(height)
+            static_cast<uint32_t>(window_extent_.width ),
+            static_cast<uint32_t>(window_extent_.height)
         };
 
         actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
@@ -285,19 +266,9 @@ void SwapChain::CreateSyncObjects()
 }
 
 
-void SwapChain::RecreateSwapChain()
+void RecreateSwapChain(VkExtent2D new_window_extent)
 {
-    int width = 0;
-    int height = 0;
-
-    while (width == 0 || height == 0)
-    {
-        window_.GetFrameBufferSize(&width, &height);
-    }
-
-    vkDeviceWaitIdle(device_.GetDevice());
-    
-    CleanupSwapChain();
+    window_extent_ = new_window_extent;
 
     CreateSwapChain();
     CreateSwapChainImageViews();
