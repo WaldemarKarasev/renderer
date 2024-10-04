@@ -142,7 +142,6 @@ std::vector<char> Pipeline::ReadFile(std::string filename)
 
     file.seekg(0);
     file.read(code.data(), file_size);
-    std::cout << file_size << std::endl;
     std::cout << filename << ".size()=" << code.size() << std::endl;
 
     return code;

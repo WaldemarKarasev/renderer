@@ -11,10 +11,10 @@ void App::Run()
         // main loop
         glfwPollEvents();
         
-        std::cout << "loop" << std::endl;
+        // std::cout << "loop" << std::endl;
         if (auto command_buffer = renderer_.BeginFrame())
         {
-            renderer_.BeginRenderPass();
+            renderer_.BeginRenderPass(command_buffer);
             renderer_.Render(command_buffer);
             renderer_.EndRenderPass(command_buffer);
             renderer_.EndFrame(command_buffer);

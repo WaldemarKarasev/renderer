@@ -25,7 +25,6 @@ Renderer::~Renderer()
 VkCommandBuffer Renderer::BeginFrame()
 {
     VkResult result = swap_chain_.AcquireImage(&current_image_index_);
-    std::cout << "BF(): current_image_index_ = " << current_image_index_ << std::endl;
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
@@ -44,12 +43,10 @@ VkCommandBuffer Renderer::BeginFrame()
     VkCommandBufferBeginInfo begin_info{};
     begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-    std::cout << "Begin cmdb start" << std::endl;
     if (vkBeginCommandBuffer(current_command_buffer, &begin_info) != VK_SUCCESS) 
     {
         throw std::runtime_error("failed to begin recording command buffer!");
     }
-    std::cout << "Begin cmdb end" << std::endl;
 
     return current_command_buffer;
 }
@@ -112,9 +109,7 @@ if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
     }
 
-    std::cout << "EF()beg: current_image_index_ = " << current_image_index_ << std::endl;
     current_frame_index_ = (current_frame_index_ + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
-    std::cout << "EF()end: current_image_index_ = " << current_image_index_ << std::endl;
 }
 
 

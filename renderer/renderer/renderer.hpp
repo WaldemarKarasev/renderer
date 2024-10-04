@@ -27,7 +27,7 @@ public:
 
 
     VkCommandBuffer BeginFrame();
-    void BeginRenderPass();
+    void BeginRenderPass(VkCommandBuffer command_buffer);
     void Render(VkCommandBuffer command_buffer);
     void EndRenderPass(VkCommandBuffer command_buffer);
     void EndFrame(VkCommandBuffer command_buffer);

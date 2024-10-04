@@ -85,7 +85,6 @@ void Device::CreateInstance()
         std::cerr << "Failed to create instance!" << std::endl;
         std::abort();
     }
-    std::cout << "6" << std::endl;
 }
 
 void Device::SetupDebugMessenger()
