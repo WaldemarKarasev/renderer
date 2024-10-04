@@ -12,6 +12,7 @@ Renderer::Renderer(engine::Window& window)
     , swap_chain_{device_, window_.GetExtent()}
     , pipeline_{device_, swap_chain_.GetSwapChainInfo()}
     , current_image_index_{0}
+    , current_frame_index_{0}
 {
     CreateCommandBuffers();
 }
@@ -23,7 +24,7 @@ Renderer::~Renderer()
 
 VkCommandBuffer Renderer::BeginFrame()
 {
-    VkResult result = swap_chain_.AquireImage(&current_image_index_);
+    VkResult result = swap_chain_.AcquireImage(&current_image_index_);
     std::cout << "BF(): current_image_index_ = " << current_image_index_ << std::endl;
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
@@ -35,16 +36,17 @@ VkCommandBuffer Renderer::BeginFrame()
     {
         throw std::runtime_error("Failed to acquire swap chain image");
     }
-    VkCommandBuffer current_command_buffer = command_buffers_[current_image_index_];
+    VkCommandBuffer current_command_buffer = command_buffers_[current_frame_index_];
 
     // vkResetCommandBuffer(current_command_buffer, 0);
 
-    // begin render pass
+    // Begin command buffer
     VkCommandBufferBeginInfo begin_info{};
     begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
     std::cout << "Begin cmdb start" << std::endl;
-    if (vkBeginCommandBuffer(current_command_buffer, &begin_info) != VK_SUCCESS) {
+    if (vkBeginCommandBuffer(current_command_buffer, &begin_info) != VK_SUCCESS) 
+    {
         throw std::runtime_error("failed to begin recording command buffer!");
     }
     std::cout << "Begin cmdb end" << std::endl;
@@ -52,7 +54,7 @@ VkCommandBuffer Renderer::BeginFrame()
     return current_command_buffer;
 }
 
-void Renderer::BeginRenderPass()
+void Renderer::BeginRenderPass(VkCommandBuffer command_buffer)
 {
     VkRenderPassBeginInfo render_pass_info{};
     render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -65,21 +67,21 @@ void Renderer::BeginRenderPass()
     render_pass_info.clearValueCount = 1;
     render_pass_info.pClearValues = &clear_color;
 
-    vkCmdBeginRenderPass(command_buffers_[current_image_index_], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
 
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = (float)  swap_chain_.GetExtent().width;
-    viewport.height = (float) swap_chain_.GetExtent().height;
+    viewport.width = static_cast<float>(swap_chain_.GetExtent().width);
+    viewport.height = static_cast<float>(swap_chain_.GetExtent().height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(command_buffers_[current_image_index_], 0, 1, &viewport);
+    vkCmdSetViewport(command_buffer, 0, 1, &viewport);
 
     VkRect2D scissor{};
     scissor.offset = {0, 0};
     scissor.extent = swap_chain_.GetExtent();
-    vkCmdSetScissor(command_buffers_[current_image_index_], 0, 1, &scissor);
+    vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 }
 
 void Renderer::Render(VkCommandBuffer command_buffer)
@@ -89,10 +91,10 @@ void Renderer::Render(VkCommandBuffer command_buffer)
     vkCmdDraw(command_buffer, 3, 1, 0, 0);
 }
 
-void Renderer::EndRenderPass()
+void Renderer::EndRenderPass(VkCommandBuffer command_buffer)
 {
     // end render pass
-    vkCmdEndRenderPass(command_buffers_[current_image_index_]);
+    vkCmdEndRenderPass(command_buffer);
 }
 
 void Renderer::EndFrame(VkCommandBuffer command_buffer)
@@ -101,7 +103,7 @@ if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS) {
         throw std::runtime_error("failed to record command buffer!");
     }    
 
-    VkResult result = swap_chain_.SubmitCommandBuffer(command_buffers_[current_image_index_], &current_image_index_);
+    VkResult result = swap_chain_.SubmitCommandBuffer(command_buffer, &current_image_index_);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window_.WasResized()) {
         window_.ResetResizedFlag();
@@ -111,7 +113,7 @@ if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS) {
     }
 
     std::cout << "EF()beg: current_image_index_ = " << current_image_index_ << std::endl;
-    current_image_index_ = (current_image_index_ + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
+    current_frame_index_ = (current_frame_index_ + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
     std::cout << "EF()end: current_image_index_ = " << current_image_index_ << std::endl;
 }
 

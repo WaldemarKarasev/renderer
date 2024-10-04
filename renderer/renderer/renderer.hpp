@@ -29,7 +29,7 @@ public:
     VkCommandBuffer BeginFrame();
     void BeginRenderPass();
     void Render(VkCommandBuffer command_buffer);
-    void EndRenderPass();
+    void EndRenderPass(VkCommandBuffer command_buffer);
     void EndFrame(VkCommandBuffer command_buffer);
 
     
@@ -47,6 +47,7 @@ private:
 
     // image conuter == current frame index
     uint32_t current_image_index_ = 0;
+    int current_frame_index_ = 0;
 
     // Commanfd buffers
     std::vector<VkCommandBuffer> command_buffers_;

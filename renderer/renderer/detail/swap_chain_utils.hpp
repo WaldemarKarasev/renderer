@@ -29,10 +29,12 @@ inline VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR
     {
         if (available_present_mode == VK_PRESENT_MODE_MAILBOX_KHR)
         {
+            std::cout << "Present mode: Mainbox" << std::endl;
             return available_present_mode;
         }
     }
 
+    std::cout << "Present mode: V-Sync (FIFO)" << std::endl;
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 

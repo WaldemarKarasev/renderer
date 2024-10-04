@@ -32,7 +32,7 @@ public:
 
     SwapChainInfo GetSwapChainInfo() { return SwapChainInfo{render_pass_}; }
 
-    VkResult AquireImage(uint32_t* image_index);
+    VkResult AcquireImage(uint32_t* image_index);
     VkResult SubmitCommandBuffer(VkCommandBuffer command_buffer, uint32_t* image_index);
 
     // Getters

@@ -50,9 +50,9 @@ SwapChain::~SwapChain()
     vkDestroyRenderPass(device_.GetDevice(), render_pass_, nullptr);    
 }
 
-VkResult SwapChain::AquireImage(uint32_t* image_index)
+VkResult SwapChain::AcquireImage(uint32_t* image_index)
 {
-        // begin frame
+    // begin frame
     vkWaitForFences(device_.GetDevice(), 1, &in_flight_fences_[current_frame_], VK_TRUE, UINT64_MAX);
 
     VkResult result = vkAcquireNextImageKHR(device_.GetDevice(), swap_chain_, UINT64_MAX, image_available_semaphores_[current_frame_], VK_NULL_HANDLE, image_index);
@@ -75,7 +75,6 @@ VkResult SwapChain::SubmitCommandBuffer(VkCommandBuffer command_buffer, uint32_t
     submit_info.pCommandBuffers = &command_buffer;
 
     VkSemaphore signal_semaphores[] = {render_finished_semaphores_[current_frame_]};
-
     submit_info.signalSemaphoreCount = 1;
     submit_info.pSignalSemaphores = signal_semaphores;
 
@@ -156,7 +155,7 @@ void SwapChain::CreateSwapChain()
     }
 
     vkGetSwapchainImagesKHR(device_.GetDevice(), swap_chain_, &image_count, nullptr);
-      std::cout << "Swapcain creation::imagecount = " << image_count << std::endl;
+    std::cout << "Swapcain creation::imagecount = " << image_count << std::endl;
     swap_chain_images_.resize(image_count);
     vkGetSwapchainImagesKHR(device_.GetDevice(), swap_chain_, &image_count, swap_chain_images_.data());
 
