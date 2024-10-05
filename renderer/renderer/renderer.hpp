@@ -13,7 +13,7 @@
 #include <renderer/renderer/device.hpp>
 #include <renderer/renderer/swap_chain.hpp>
 #include <renderer/renderer/pipeline.hpp>
-
+#include <renderer/renderer/vertex_buffer.hpp>
 
 
 namespace renderer
@@ -43,6 +43,7 @@ private:
     Device device_;
     SwapChain swap_chain_;
     Pipeline pipeline_; // triangle pipeline
+    VertexBuffer vertex_buffer_;
     
 
     // image conuter == current frame index

@@ -9,6 +9,8 @@
 // renderer includes
 #include <renderer/renderer/device.hpp>
 #include <renderer/renderer/swap_chain.hpp>
+#include <renderer/renderer/vertex_buffer.hpp>
+
 
 namespace renderer {
 

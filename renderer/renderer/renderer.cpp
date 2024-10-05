@@ -11,6 +11,11 @@ Renderer::Renderer(engine::Window& window)
     , device_{window_}
     , swap_chain_{device_, window_.GetExtent()}
     , pipeline_{device_, swap_chain_.GetSwapChainInfo()}
+    , vertex_buffer_{device_, {                /*Vertices*/
+                                {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                                {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+                                {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+                              }} 
     , current_image_index_{0}
     , current_frame_index_{0}
 {
@@ -85,7 +90,13 @@ void Renderer::Render(VkCommandBuffer command_buffer)
 {
     // rendering triangle demo
     vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_.GetGraphicsPipeline());
-    vkCmdDraw(command_buffer, 3, 1, 0, 0);
+
+    VkBuffer vertex_buffers[] = {vertex_buffer_.GetBuffer()};
+    VkDeviceSize offsets[] = {0};
+
+    vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, offsets);
+
+    vkCmdDraw(command_buffer, static_cast<uint32_t>(vertex_buffer_.Size()), 1, 0, 0);
 }
 
 void Renderer::EndRenderPass(VkCommandBuffer command_buffer)
