@@ -53,13 +53,14 @@ struct Vertex
 class VertexBuffer
 {
 public:
-    VertexBuffer(Device& device, std::vector<Vertex> vertices);
+    VertexBuffer(Device& device, std::vector<Vertex> vertices, std::vector<uint16_t> indices = {});
     ~VertexBuffer();
 
-    VkBuffer GetBuffer() { return vertex_buffer_; }
-    size_t Size() { return size_; }
+    void DrawBuffer(VkCommandBuffer command_buffer);
+
 private:
     void CreateVertexBuffer(std::vector<Vertex> vertices);
+    void CreateIndexBuffer(std::vector<uint16_t> indices);
 
     void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& buffer_memory);
     void CopyBuffer(VkBuffer src_buffer, VkBuffer dst_buffer, VkDeviceSize size);
@@ -71,7 +72,12 @@ private:
 
     VkBuffer vertex_buffer_;
     VkDeviceMemory vertex_buffer_memory_;
-    size_t size_{0};
+    size_t vertex_buffer_size_{0};
+
+    bool has_indices_ = false;
+    VkBuffer index_buffer_;
+    VkDeviceMemory index_buffer_memory_;
+    size_t index_buffer_size_{0};
 };
 
 } // namespace renderer

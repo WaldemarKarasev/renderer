@@ -14,13 +14,23 @@ Renderer::Renderer(engine::Window& window)
     , current_image_index_{0}
     , current_frame_index_{0}
 {
-    std::vector<Vertex> vertices = {                /*Vertices*/
-                                        {{0.0f, -0.5f}, {1.0f, 0.0f, 1.0f}},
-                                        {{0.5f, 0.5f}, {0.0f, 1.0f, 1.0f}},
-                                        {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
-                                    };
+    // std::vector<Vertex> vertices = {                /*Vertices*/
+    //                                     {{0.0f, -0.5f}, {1.0f, 0.0f, 1.0f}},
+    //                                     {{0.5f, 0.5f}, {0.0f, 1.0f, 1.0f}},
+    //                                     {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+    //                                 };
+    // vertex_buffer_ = std::make_unique<VertexBuffer>(device_, std::move(vertices));
 
-    vertex_buffer_ = std::make_unique<VertexBuffer>(device_, std::move(vertices));
+    std::vector<Vertex> square = {                /*Vertices*/
+                                    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+                                };
+    
+    std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
+
+    vertex_buffer_ = std::make_unique<VertexBuffer>(device_, std::move(square), std::move(indices));
     CreateCommandBuffers();
 }
 
@@ -93,12 +103,7 @@ void Renderer::Render(VkCommandBuffer command_buffer)
     // rendering triangle demo
     vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_.GetGraphicsPipeline());
 
-    VkBuffer vertex_buffers[] = {vertex_buffer_->GetBuffer()};
-    VkDeviceSize offsets[] = {0};
-
-    vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, offsets);
-
-    vkCmdDraw(command_buffer, static_cast<uint32_t>(vertex_buffer_->Size()), 1, 0, 0);
+    vertex_buffer_->DrawBuffer(command_buffer);
 }
 
 void Renderer::EndRenderPass(VkCommandBuffer command_buffer)

@@ -7,12 +7,18 @@
 
 namespace renderer {
 
-VertexBuffer::VertexBuffer(Device& device, std::vector<Vertex> vertices)
+VertexBuffer::VertexBuffer(Device& device, std::vector<Vertex> vertices, std::vector<uint16_t> indices)
     : device_{device}
 {
-    size_ = vertices.size();
+    vertex_buffer_size_ = vertices.size();
     CreateVertexBuffer(std::move(vertices));
 
+    if (!indices.empty())
+    {
+        has_indices_ = true;
+        index_buffer_size_ = indices.size();
+        CreateIndexBuffer(std::move(indices));
+    }
 }
 
 VertexBuffer::~VertexBuffer()
@@ -20,6 +26,25 @@ VertexBuffer::~VertexBuffer()
     vkDestroyBuffer(device_.GetDevice(), vertex_buffer_, nullptr);
     vkFreeMemory(device_.GetDevice(), vertex_buffer_memory_, nullptr);
 }
+
+void VertexBuffer::DrawBuffer(VkCommandBuffer command_buffer)
+{
+    VkBuffer vertex_buffers[] = {vertex_buffer_};
+    VkDeviceSize offsets[] = {0};
+    
+    vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, offsets);
+
+    if (has_indices_)
+    {
+        vkCmdBindIndexBuffer(command_buffer, index_buffer_, 0, VK_INDEX_TYPE_UINT16);
+        vkCmdDrawIndexed(command_buffer, static_cast<uint32_t>(index_buffer_size_), 1, 0, 0, 0);
+    }
+    else
+    {
+        vkCmdDraw(command_buffer, static_cast<uint32_t>(vertex_buffer_size_), 1, 0, 0);
+    }
+}
+
 
 void VertexBuffer::CreateVertexBuffer(std::vector<Vertex> vertices)
 {
@@ -44,6 +69,32 @@ void VertexBuffer::CreateVertexBuffer(std::vector<Vertex> vertices)
     vkDestroyBuffer(device_.GetDevice(), staging_buffer, nullptr);
     vkFreeMemory(device_.GetDevice(), staging_buffer_memory, nullptr);
 }
+
+void VertexBuffer::CreateIndexBuffer(std::vector<uint16_t> indices)
+{
+    VkDeviceSize buffer_size = sizeof(std::vector<uint16_t>::value_type) * indices.size();
+
+    // Staging buffer step
+    VkBuffer staging_buffer;
+    VkDeviceMemory staging_buffer_memory;
+    CreateBuffer(buffer_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, staging_buffer, staging_buffer_memory);
+
+    // copying vertices data into stagin data buffer
+    void* data;
+    vkMapMemory(device_.GetDevice(), staging_buffer_memory, 0, buffer_size, 0, &data);
+    std::memcpy(data, indices.data(), (size_t)buffer_size);
+    vkUnmapMemory(device_.GetDevice(), staging_buffer_memory);
+
+    // createing device local buffer
+    CreateBuffer(buffer_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, index_buffer_, index_buffer_memory_);
+
+    CopyBuffer(staging_buffer, index_buffer_, buffer_size);
+
+    vkDestroyBuffer(device_.GetDevice(), staging_buffer, nullptr);
+    vkFreeMemory(device_.GetDevice(), staging_buffer_memory, nullptr);
+
+}
+
 
 void VertexBuffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& buffer_memory)
 {
