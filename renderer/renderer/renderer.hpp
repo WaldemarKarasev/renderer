@@ -2,6 +2,7 @@
 
 // std
 #include <vector>
+#include <memory>
 
 // vulkan
 #include <vulkan/vulkan.h>
@@ -43,7 +44,7 @@ private:
     Device device_;
     SwapChain swap_chain_;
     Pipeline pipeline_; // triangle pipeline
-    VertexBuffer vertex_buffer_;
+    std::unique_ptr<VertexBuffer> vertex_buffer_ = nullptr;
     
 
     // image conuter == current frame index
