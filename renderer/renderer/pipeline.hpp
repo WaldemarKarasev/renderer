@@ -17,13 +17,13 @@ namespace renderer {
 class Pipeline
 {
 public:
-    Pipeline(Device& device, SwapChainInfo swap_chain);
+    Pipeline(Device& device, VkRenderPass render_pass, VkDescriptorSetLayout descriptor_set_layout);
     ~Pipeline();
 
     VkPipeline GetGraphicsPipeline() { return graphics_pipeline_;}
 
 private:
-    void CreatePipeline(SwapChainInfo swap_chain_info);
+    void CreatePipeline(VkRenderPass render_pass, VkDescriptorSetLayout descriptor_set_layout);
 
 
 

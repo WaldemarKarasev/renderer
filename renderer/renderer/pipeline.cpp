@@ -6,10 +6,10 @@
 
 namespace renderer {
 
-Pipeline::Pipeline(Device& device, SwapChainInfo swap_chain_info)
+Pipeline::Pipeline(Device& device, VkRenderPass render_pass, VkDescriptorSetLayout descriptor_set_layout)
     : device_{device}
 {
-    CreatePipeline(std::move(swap_chain_info));
+    CreatePipeline(render_pass, descriptor_set_layout);
 }
 
 Pipeline::~Pipeline()
@@ -18,7 +18,7 @@ Pipeline::~Pipeline()
     vkDestroyPipelineLayout(device_.GetDevice(), pipeline_layout_, nullptr);
 }
 
-void Pipeline::CreatePipeline(SwapChainInfo swap_chain_info)
+void Pipeline::CreatePipeline(VkRenderPass render_pass, VkDescriptorSetLayout descriptor_set_layout)
 {
     auto vert_shader_code = ReadFile("shaders/vert.spv");
     auto frag_shader_code = ReadFile("shaders/frag.spv");
@@ -107,7 +107,8 @@ void Pipeline::CreatePipeline(SwapChainInfo swap_chain_info)
 
     VkPipelineLayoutCreateInfo pipeline_layout_info{};
     pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipeline_layout_info.setLayoutCount = 0;
+    pipeline_layout_info.setLayoutCount = 1;
+    pipeline_layout_info.pSetLayouts = &descriptor_set_layout;
     pipeline_layout_info.pushConstantRangeCount = 0;
 
     if (vkCreatePipelineLayout(device_.GetDevice(), &pipeline_layout_info, nullptr, &pipeline_layout_) != VK_SUCCESS) {
@@ -126,7 +127,7 @@ void Pipeline::CreatePipeline(SwapChainInfo swap_chain_info)
     pipeline_info.pColorBlendState = &color_blending;
     pipeline_info.pDynamicState = &dynamic_state;
     pipeline_info.layout = pipeline_layout_;
-    pipeline_info.renderPass = swap_chain_info.render_pass_;
+    pipeline_info.renderPass = render_pass;
     pipeline_info.subpass = 0;
     pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
 

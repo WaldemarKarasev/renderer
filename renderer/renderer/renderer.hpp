@@ -15,7 +15,7 @@
 #include <renderer/renderer/swap_chain.hpp>
 #include <renderer/renderer/pipeline.hpp>
 #include <renderer/renderer/vertex_buffer.hpp>
-
+#include <renderer/renderer/descriptor_set_layout.hpp>
 
 namespace renderer
 {
@@ -43,7 +43,8 @@ private:
     engine::Window& window_;
     Device device_;
     SwapChain swap_chain_;
-    Pipeline pipeline_; // triangle pipeline
+    DescriptorSetLayout global_layout_;
+    std::unique_ptr<Pipeline> pipeline_ = nullptr; // triangle pipeline
     std::unique_ptr<VertexBuffer> vertex_buffer_ = nullptr;
     
 
