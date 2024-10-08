@@ -21,7 +21,7 @@ public:
 
 private:
     void CreateDescriptorPool();
-    void CreateDescriptorBuffers();
+    void CreateDescriptorBuffers(VkDescriptorSetLayout descriptor_set_layout_);
 
 private:
     Device& device_;
