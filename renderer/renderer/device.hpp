@@ -25,7 +25,6 @@ public:
     VkQueue GetPresentQueue() { return present_queue_; }
 
     VkCommandPool GetCommandPool() { return command_pool_; }
-
 private:
     void InitVulkan();
 
@@ -36,6 +35,11 @@ private:
     void PickPhysicalDevice();
     void CreateLogicalDevice();
     void CreateCommapdPool();
+
+public:
+    // buffer utility interface
+    void CopyBuffer(VkBuffer src_buffer, VkBuffer dst_buffer, VkDeviceSize size);
+
 
 private:
     // window for rendering to it

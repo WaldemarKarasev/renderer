@@ -1,21 +1,20 @@
 #pragma once
 
 // std
-#include <vector>
 #include <memory>
+#include <vector>
 
 // vulkan
 #include <vulkan/vulkan.h>
-
 
 // renderer includes
 #include <renderer/window.hpp>
 
 #include <renderer/renderer/device.hpp>
-#include <renderer/renderer/swap_chain.hpp>
-#include <renderer/renderer/pipeline.hpp>
-#include <renderer/renderer/vertex_buffer.hpp>
 #include <renderer/renderer/descriptor_set_layout.hpp>
+#include <renderer/renderer/pipeline.hpp>
+#include <renderer/renderer/swap_chain.hpp>
+#include <renderer/renderer/vertex_buffer.hpp>
 
 namespace renderer
 {
@@ -23,13 +22,12 @@ namespace renderer
 class Renderer
 {
 public:
-    Renderer(engine::Window& window);
+    Renderer(Device& device, engine::Window& window);
     ~Renderer();
 
 
     VkCommandBuffer BeginFrame();
     void BeginRenderPass(VkCommandBuffer command_buffer);
-    void Render(VkCommandBuffer command_buffer);
     void EndRenderPass(VkCommandBuffer command_buffer);
     void EndFrame(VkCommandBuffer command_buffer);
 
@@ -41,12 +39,8 @@ private:
 
 private:
     engine::Window& window_;
-    Device device_;
-    SwapChain swap_chain_;
-    DescriptorSetLayout global_layout_;
-    std::unique_ptr<Pipeline> pipeline_ = nullptr; // triangle pipeline
-    std::unique_ptr<VertexBuffer> vertex_buffer_ = nullptr;
-    
+    Device& device_;
+    SwapChain swap_chain_;   
 
     // image conuter == current frame index
     uint32_t current_image_index_ = 0;

@@ -2,6 +2,7 @@
 
 // std
 #include <array>
+#include <memory>
 #include <vector>
 
 // Vulkan
@@ -12,7 +13,7 @@
 
 // renderer includes
 #include <renderer/renderer/device.hpp>
-
+#include <renderer/renderer/buffer.hpp>
 
 
 namespace renderer {
@@ -62,21 +63,14 @@ private:
     void CreateVertexBuffer(std::vector<Vertex> vertices);
     void CreateIndexBuffer(std::vector<uint16_t> indices);
 
-    void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& buffer_memory);
-    void CopyBuffer(VkBuffer src_buffer, VkBuffer dst_buffer, VkDeviceSize size);
-
-    uint32_t FindMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties);
-
 private:
     Device& device_;
 
-    VkBuffer vertex_buffer_;
-    VkDeviceMemory vertex_buffer_memory_;
+    std::unique_ptr<Buffer> vertex_buffer_ = nullptr;
     size_t vertex_buffer_size_{0};
 
     bool has_indices_ = false;
-    VkBuffer index_buffer_;
-    VkDeviceMemory index_buffer_memory_;
+    std::unique_ptr<Buffer> index_buffer_ = nullptr;
     size_t index_buffer_size_{0};
 };
 

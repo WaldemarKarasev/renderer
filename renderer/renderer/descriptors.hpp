@@ -13,6 +13,29 @@
 namespace renderer
 {
 
+class DescriptorSetLayout
+{
+public:
+    DescriptorSetLayout(Device& device);
+    ~DescriptorSetLayout();
+
+    VkDescriptorSetLayout GetLayout() { return descriptor_set_layout_; }
+
+private:
+
+    void CreateDescriptorSetLayout();
+
+
+private:
+    Device& device_;
+    VkDescriptorSetLayout descriptor_set_layout_;
+};
+
+class DescriptorPool
+{
+    // Not implemented yet
+};
+
 class DescriptorSet
 {
 public:

@@ -15,7 +15,8 @@ class Buffer
 {
 public:
     Buffer(Device& device,
-           VkDeviceSize size, 
+           VkDeviceSize instance_size,
+           uint32_t  instance_count,
            VkBufferUsageFlags usage, 
            VkMemoryPropertyFlags properties);
 
@@ -25,7 +26,10 @@ public:
     void Unmap();
     void WriteToBuffer(void* data, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
 
-    static void CopyBuffers(VkBuffer src_buffer, VkBuffer dst_buffer, VkDeviceSize size);
+    // Getters
+
+    VkBuffer GetBuffer() { return buffer_; }
+    uint32_t GetInstanceCount() { return instance_count_; }
 
 private:
     void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
@@ -36,7 +40,10 @@ private:
 
     VkBuffer buffer_;
     VkDeviceMemory memory_;
-    VkDeviceSize size_;
+    VkDeviceSize buffer_size_;
+    VkDeviceSize instance_size_;
+    uint32_t instance_count_;
+
 
     void* mapped_ = nullptr;
 };

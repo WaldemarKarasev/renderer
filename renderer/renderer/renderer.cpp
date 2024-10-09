@@ -6,36 +6,13 @@
 namespace renderer
 {
 
-Renderer::Renderer(engine::Window& window)
+Renderer::Renderer(Device& device, engine::Window& window)
     : window_{window}
-    , device_{window_}
+    , device_{device}
     , swap_chain_{device_, window_.GetExtent()}
-    , global_layout_{device_}
     , current_image_index_{0}
     , current_frame_index_{0}
 {
-    // std::vector<Vertex> vertices = {                /*Vertices*/
-    //                                     {{0.0f, -0.5f}, {1.0f, 0.0f, 1.0f}},
-    //                                     {{0.5f, 0.5f}, {0.0f, 1.0f, 1.0f}},
-    //                                     {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
-    //                                 };
-    // vertex_buffer_ = std::make_unique<VertexBuffer>(device_, std::move(vertices));
-    // auto r_p = swap_chain_.GetRenderPass();
-    // auto g_l = global_layout_.GetLayout();
-    pipeline_ = std::make_unique<Pipeline>(device_, swap_chain_.GetRenderPass(), global_layout_.GetLayout());
-    // pipeline_ = std::make_unique(device_, r_p, g_l);
-
-
-    std::vector<Vertex> square = {                /*Vertices*/
-                                    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
-                                };
-    
-    std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
-
-    vertex_buffer_ = std::make_unique<VertexBuffer>(device_, std::move(square), std::move(indices));
     CreateCommandBuffers();
 }
 
@@ -101,14 +78,6 @@ void Renderer::BeginRenderPass(VkCommandBuffer command_buffer)
     scissor.offset = {0, 0};
     scissor.extent = swap_chain_.GetExtent();
     vkCmdSetScissor(command_buffer, 0, 1, &scissor);
-}
-
-void Renderer::Render(VkCommandBuffer command_buffer)
-{
-    // rendering triangle demo
-    vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->GetGraphicsPipeline());
-
-    vertex_buffer_->DrawBuffer(command_buffer);
 }
 
 void Renderer::EndRenderPass(VkCommandBuffer command_buffer)

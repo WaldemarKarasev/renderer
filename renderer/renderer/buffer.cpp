@@ -10,13 +10,16 @@
 namespace renderer {
 
 Buffer::Buffer(Device& device,
-        VkDeviceSize size, 
+        VkDeviceSize instance_size, 
+        uint32_t instance_count
         VkBufferUsageFlags usage, 
         VkMemoryPropertyFlags properties)
         : device_{device}
-        , size_{size}
+        , instance_size_{instance_size}
+        , instance_count_{instance_count}
 {
-    CreateBuffer(size, usage, properties);
+    buffer_size_ = instance_count_ * instance_size_;
+    CreateBuffer(buffer_size_, usage, properties);
 }
 
 Buffer::~Buffer()
@@ -25,21 +28,18 @@ Buffer::~Buffer()
     vkFreeMemory(device_.GetDevice(), memory_, nullptr);
 }
 
-VkResult Buffer::Map(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0)
+VkResult Buffer::Map(VkDeviceSize size, VkDeviceSize offset)
 {
-    assert(mapped_ == nullptr);
-
     return vkMapMemory(device_.GetDevice(), memory_, offset, size, 0, &mapped_);
 }
 
 void Buffer::Unmap()
 {
-    assert(mapped_ != nullptr);
     vkUnmapMemory(device_.GetDevice(), memory_);
     mapped_ = nullptr;
 }
 
-void Buffer::WriteToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset = 0)
+void Buffer::WriteToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset)
 {
     assert(mapped_ != nullptr);
 
@@ -49,13 +49,10 @@ void Buffer::WriteToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset = 
     }
     else
     {
-        // Not implemented
+        char* mem_offset = reinterpret_cast<char*>(mapped_);
+        mem_offset += offset;
+        std::memcpy(mem_offset, data, size);
     }
-}
-
-void Buffer::CopyBuffers(VkBuffer src_buffer, VkBuffer dst_buffer, VkDeviceSize size)
-{
-
 }
 
 void Buffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
