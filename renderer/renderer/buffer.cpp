@@ -11,7 +11,7 @@ namespace renderer {
 
 Buffer::Buffer(Device& device,
         VkDeviceSize instance_size, 
-        uint32_t instance_count
+        uint32_t instance_count,
         VkBufferUsageFlags usage, 
         VkMemoryPropertyFlags properties)
         : device_{device}
@@ -45,7 +45,7 @@ void Buffer::WriteToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset)
 
     if (size == VK_WHOLE_SIZE)
     {
-        std::memcpy(mapped_, data, size_);
+        std::memcpy(mapped_, data, buffer_size_);
     }
     else
     {

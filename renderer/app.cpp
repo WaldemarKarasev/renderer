@@ -17,12 +17,9 @@ struct UBO
 
 App::App()
 {
-    // Creating pipeline for quad rendering
-    pipeline_ = std::make_unique<Pipeline>(device_, swap_chain_.GetRenderPass(), global_layout_.GetLayout());
-
 
     // Initializing vertex buffer for quad
-    std::vector<Vertex> square = {           /* Vertices */
+    std::vector<renderer::Vertex> square = {           /* Vertices */
                                     {{-0.5f, -0.5f},    {1.0f, 0.0f, 0.0f}},
                                     {{0.5f, -0.5f},     {0.0f, 1.0f, 0.0f}},
                                     {{0.5f, 0.5f},      {0.0f, 0.0f, 1.0f}},
@@ -31,12 +28,19 @@ App::App()
                                         /* Indices */
     std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
 
-    vertex_buffer_ = std::make_unique<VertexBuffer>(device_, std::move(square), std::move(indices));
+    vertex_buffer_ = std::make_unique<renderer::VertexBuffer>(device_, std::move(square), std::move(indices));
 }
 
 void App::Run()
 {   
     // =========================================== Preparation for begining main loop =========================================== //
+
+    global_descriptor_set_layout_ = std::make_unique<renderer::DescriptorSetLayout>(device_);
+
+    // Creating pipeline for quad rendering
+    pipeline_ = std::make_unique<renderer::Pipeline>(device_, renderer_.GetSwapchainRenderPass(), global_descriptor_set_layout_->GetLayout());
+
+
 
     // Creating uniform buffers for future its usage in descriptor sets
     std::vector<std::unique_ptr<renderer::Buffer>> ubo_buffers(renderer::SwapChain::MAX_FRAMES_IN_FLIGHT);

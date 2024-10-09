@@ -11,7 +11,7 @@
 #include <renderer/window.hpp>
 
 #include <renderer/renderer/device.hpp>
-#include <renderer/renderer/descriptor_set_layout.hpp>
+#include <renderer/renderer/descriptors.hpp>
 #include <renderer/renderer/pipeline.hpp>
 #include <renderer/renderer/swap_chain.hpp>
 #include <renderer/renderer/vertex_buffer.hpp>
@@ -31,7 +31,7 @@ public:
     void EndRenderPass(VkCommandBuffer command_buffer);
     void EndFrame(VkCommandBuffer command_buffer);
 
-    
+    VkRenderPass GetSwapchainRenderPass() { return swap_chain_.GetRenderPass(); }
 
 private:
     void CreateCommandBuffers();

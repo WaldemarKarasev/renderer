@@ -4,13 +4,13 @@
 #include <memory>
 
 // vulkan
-#include <vulkan/vulkan.h"
+#include <vulkan/vulkan.h>
 
 // renderer includes
 #include <renderer/window.hpp>
 #include <renderer/renderer/device.hpp>
+#include <renderer/renderer/descriptors.hpp>
 #include <renderer/renderer/renderer.hpp>
-
 #include <renderer/renderer/pipeline.hpp>
 
 namespace engine {
@@ -31,11 +31,11 @@ private:
     renderer::Device device_{window_};
     renderer::Renderer renderer_{device_, window_};
 
-    std::unique_ptr<DescriptorPool> glob_descriptor_pool_;
-
+    std::unique_ptr<renderer::DescriptorPool> glob_descriptor_pool_ = nullptr;
+    std::unique_ptr<renderer::DescriptorSetLayout> global_descriptor_set_layout_ = nullptr;
     // for rendering once quad. For demo only
-    std::unique_ptr<Pipeline> pipeline_ = nullptr; // triangle pipeline
-    std::unique_ptr<VertexBuffer> vertex_buffer_ = nullptr;
+    std::unique_ptr<renderer::Pipeline> pipeline_ = nullptr; // triangle pipeline
+    std::unique_ptr<renderer::VertexBuffer> vertex_buffer_ = nullptr;
 };
 
 } // namespace renderer

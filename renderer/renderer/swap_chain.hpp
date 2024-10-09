@@ -30,8 +30,6 @@ public:
     SwapChain(Device& device, VkExtent2D window_extent);
     ~SwapChain();
 
-    SwapChainInfo GetSwapChainInfo() { return SwapChainInfo{render_pass_}; }
-
     VkResult AcquireImage(uint32_t* image_index);
     VkResult SubmitCommandBuffer(VkCommandBuffer command_buffer, uint32_t* image_index);
 
