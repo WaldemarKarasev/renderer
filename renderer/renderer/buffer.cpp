@@ -55,6 +55,16 @@ void Buffer::WriteToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset)
     }
 }
 
+VkDescriptorBufferInfo Buffer::DescriptorInfo(VkDeviceSize size, VkDeviceSize offset)
+{
+    return VkDescriptorBufferInfo{
+        buffer_,
+        offset,
+        size
+    };
+}
+
+
 void Buffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
 {
     VkBufferCreateInfo buffer_info{};

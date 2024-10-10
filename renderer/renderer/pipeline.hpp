@@ -21,6 +21,7 @@ public:
     ~Pipeline();
 
     VkPipeline GetGraphicsPipeline() { return graphics_pipeline_;}
+    VkPipelineLayout GetLayout() { return pipeline_layout_; }
 
 private:
     void CreatePipeline(VkRenderPass render_pass, VkDescriptorSetLayout descriptor_set_layout);

@@ -30,10 +30,10 @@ public:
 
     private:
         Device& device_;
-        std::unordered_map<uint32_t, VkDescriptorSetLayoutBindings> bindings_{};
-    }
+        std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings_{};
+    };
 
-    DescriptorSetLayout(Device& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBindings> bindings);
+    DescriptorSetLayout(Device& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
     ~DescriptorSetLayout();
 
     VkDescriptorSetLayout GetDescriptorSetLayout() { return descriptor_set_layout_; }
@@ -41,43 +41,53 @@ public:
 private:
     Device& device_;
     VkDescriptorSetLayout descriptor_set_layout_;
-    std::unordered_map<uint32_t, VkDescriptorSetLayoutBindings> bindings_{};
+    std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings_{};
+
+    friend class DescriptorWriter;
 };
 
+
+// =================== Descriptor Pool =================== //
 class DescriptorPool
 {
 public:
-    DescriptorPool(Device& device)
-        : device_{device}
+    class Builder
     {
-        CreateDescriptorPool();
-    }
+    public:
+        Builder(Device& device) : device_{device} {}
 
-    VkDescriptorPool GetPool() { return descriptor_pool_; }
+        Builder& AddPoolSize(VkDescriptorType descriptor_type, uint32_t count);
+        Builder& SetPoolFlags(VkDescriptorPoolCreateFlags flags);
+        Builder& SetMaxSets(uint32_t count);
+        std::unique_ptr<DescriptorPool> Build(); 
 
-private:
-    void CreateDescriptorPool()
-    {
-        VkDescriptorPoolSize pool_size{};
-        pool_size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        pool_size.descriptorCount = static_cast<uint32_t>(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    private:
+        Device& device_;
+        std::vector<VkDescriptorPoolSize> pool_sizes_{};
+        uint32_t max_sets_ = 1000;
+        VkDescriptorPoolCreateFlags pool_flags_ = 0;
+    };
 
-        VkDescriptorPoolCreateInfo pool_info{};
-        pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        pool_info.poolSizeCount = 1;
-        pool_info.pPoolSizes = &pool_size;
-        pool_info.maxSets = static_cast<uint32_t>(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    DescriptorPool(
+        Device& device,
+        uint32_t max_sets,
+        VkDescriptorPoolCreateFlags pool_flags,
+        std::vector<VkDescriptorPoolSize> pool_sizes
+    );
+    ~DescriptorPool();
+    DescriptorPool(const DescriptorPool&) = delete;
+    DescriptorPool& operator=(const DescriptorPool&) = delete;
 
-        if (vkCreateDescriptorPool(device_.GetDevice(), &pool_info, nullptr, &descriptor_pool_) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to create descriptor pool!");
-        }
-    }
+    bool AllocateDescriptor(const VkDescriptorSetLayout descriptor_set_layout, VkDescriptorSet& descriptor);
+    void FreeDescriptors(std::vector<VkDescriptorSet>& descriptors);
 
-
+    void ResetPool();
+    
 private:
     Device& device_;
     VkDescriptorPool descriptor_pool_;
+
+    friend class DescriptorWriter;
 };
 
 class DescriptorSet
@@ -91,8 +101,28 @@ private:
 
 private:
     Device& device_;
-
     VkDescriptorSet descriptor_set_;
+
+    friend class DescriptorWriter;
 };
+
+// =================== DescriptorWriter =================== //
+class DescriptorWriter
+{
+public:
+    DescriptorWriter(DescriptorSetLayout& set_layout, DescriptorPool& pool);
+
+    DescriptorWriter& WriteBuffer(uint32_t binding, VkDescriptorBufferInfo* buffer_info);
+    DescriptorWriter& WriteImage(uint32_t binding, VkDescriptorImageInfo* image_info);
+
+    bool Build(VkDescriptorSet& set);
+    void Overwrite(VkDescriptorSet& set);
+
+private:
+    DescriptorSetLayout& set_layout_;
+    DescriptorPool& descriptor_pool_;
+    std::vector<VkWriteDescriptorSet> writes_;
+};
+
 
 } // namespace renderer

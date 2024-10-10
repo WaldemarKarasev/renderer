@@ -30,7 +30,7 @@ public:
 
     VkBuffer GetBuffer() { return buffer_; }
     uint32_t GetInstanceCount() { return instance_count_; }
-
+    VkDescriptorBufferInfo DescriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
 private:
     void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
     uint32_t FindMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties);
