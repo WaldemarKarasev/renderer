@@ -35,13 +35,6 @@ void App::Run()
 {   
     // =========================================== Preparation for begining main loop =========================================== //
 
-    global_descriptor_set_layout_ = std::make_unique<renderer::DescriptorSetLayout>(device_);
-
-    // Creating pipeline for quad rendering
-    pipeline_ = std::make_unique<renderer::Pipeline>(device_, renderer_.GetSwapchainRenderPass(), global_descriptor_set_layout_->GetLayout());
-
-
-
     // Creating uniform buffers for future its usage in descriptor sets
     std::vector<std::unique_ptr<renderer::Buffer>> ubo_buffers(renderer::SwapChain::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < ubo_buffers.size(); ++i)
@@ -50,12 +43,20 @@ void App::Run()
         ubo_buffers[i]->Map();
     }
 
-
     // Creating global descriptor layout
+    auto global_descriptor_set_layout_ = renderer::DescriptorSetLayout::Builder(device_)
+                    .AddBindings(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+                    .Build();
 
+    
     // global descriptor pool
-
+    // Not implemented
+    
     // allocating descriptor sets from global descriptor pool
+    // Not implemented
+    
+    // Creating pipeline for quad rendering. For now this is a kind of prototype for the rendering system 
+    pipeline_ = std::make_unique<renderer::Pipeline>(device_, renderer_.GetSwapchainRenderPass(), global_descriptor_set_layout_->GetLayout());
 
     while(!window_.ShouldClose())
     {

@@ -1,7 +1,9 @@
 #pragma once 
 
 // std
+#include <memory>
 #include <vector>
+#include <unordered_map>
 
 // vulkan
 #include <vulkan/vulkan.h>
@@ -14,19 +16,32 @@ namespace renderer
 class DescriptorSetLayout
 {
 public:
-    DescriptorSetLayout(Device& device);
+
+    class Builder
+    {
+    public:
+        Builder(Device& device) : device_{device} {};
+        Builder& AddBindings(uint32_t binding, 
+                             VkDescriptorType descriptor_type, 
+                             VkShaderStageFlags stage_flags, 
+                             uint32_t count = 1);
+        
+        std::unique_ptr<DescriptorSetLayout> Build();
+
+    private:
+        Device& device_;
+        std::unordered_map<uint32_t, VkDescriptorSetLayoutBindings> bindings_{};
+    }
+
+    DescriptorSetLayout(Device& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBindings> bindings);
     ~DescriptorSetLayout();
 
-    VkDescriptorSetLayout GetLayout() { return descriptor_set_layout_; }
-
-private:
-
-    void CreateDescriptorSetLayout();
-
+    VkDescriptorSetLayout GetDescriptorSetLayout() { return descriptor_set_layout_; }
 
 private:
     Device& device_;
     VkDescriptorSetLayout descriptor_set_layout_;
+    std::unordered_map<uint32_t, VkDescriptorSetLayoutBindings> bindings_{};
 };
 
 class DescriptorPool

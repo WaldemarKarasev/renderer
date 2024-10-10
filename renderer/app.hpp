@@ -32,7 +32,6 @@ private:
     renderer::Renderer renderer_{device_, window_};
 
     std::unique_ptr<renderer::DescriptorPool> glob_descriptor_pool_ = nullptr;
-    std::unique_ptr<renderer::DescriptorSetLayout> global_descriptor_set_layout_ = nullptr;
     // for rendering once quad. For demo only
     std::unique_ptr<renderer::Pipeline> pipeline_ = nullptr; // triangle pipeline
     std::unique_ptr<renderer::VertexBuffer> vertex_buffer_ = nullptr;
