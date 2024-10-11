@@ -99,6 +99,7 @@ DescriptorPool::DescriptorPool(
     descriptor_pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     descriptor_pool_info.poolSizeCount = static_cast<uint32_t>(pool_sizes.size());
     descriptor_pool_info.pPoolSizes = pool_sizes.data();
+    descriptor_pool_info.maxSets = max_sets;
     descriptor_pool_info.flags = pool_flags;
 
     if (vkCreateDescriptorPool(device_.GetDevice(), &descriptor_pool_info, nullptr, &descriptor_pool_) != VK_SUCCESS)

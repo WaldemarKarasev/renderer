@@ -9,6 +9,7 @@
 #include <vulkan/vulkan.h>
 
 // glm
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
 // renderer includes

@@ -58,7 +58,7 @@ void Buffer::WriteToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset)
 VkResult Buffer::Flush(VkDeviceSize size, VkDeviceSize offset)
 {
     VkMappedMemoryRange mapped_range = {};
-    mapped_range.sType = VK_STRUCTURE_TYPE_MAPPED_RANGE;
+    mapped_range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
     mapped_range.memory = memory_;
     mapped_range.offset = offset;
     mapped_range.size = size;
