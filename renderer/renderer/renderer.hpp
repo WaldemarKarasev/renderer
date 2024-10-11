@@ -32,6 +32,8 @@ public:
     void EndFrame(VkCommandBuffer command_buffer);
 
     VkRenderPass GetSwapchainRenderPass() { return swap_chain_.GetRenderPass(); }
+    VkExtent2D GetSwapChainExtent() { return swap_chain_.GetExtent(); }
+    int GetFrameIndex() { return current_frame_index_; }
 
 private:
     void CreateCommandBuffers();

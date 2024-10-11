@@ -12,6 +12,7 @@
 #include <renderer/renderer/descriptors.hpp>
 #include <renderer/renderer/renderer.hpp>
 #include <renderer/renderer/pipeline.hpp>
+#include <renderer/renderer/frame_utility.hpp>
 
 namespace engine {
 
@@ -22,9 +23,11 @@ public:
 
     void Run();
 
-    void Render(VkCommandBuffer command_buffer);
+    void Render(const renderer::FrameInfo& frame_info);
 
-    void UpdateUniformBuffer(uint32_t current_image);
+
+private:
+    void UpdateUBO(const renderer::FrameInfo& frame_info);
 
 private:
     bool running_{true};
@@ -37,6 +40,11 @@ private:
     // for rendering once quad. For demo only
     std::unique_ptr<renderer::Pipeline> pipeline_ = nullptr; // triangle pipeline
     std::unique_ptr<renderer::VertexBuffer> vertex_buffer_ = nullptr;
+
+    std::vector<std::unique_ptr<renderer::Buffer>> ubo_buffers;
+    std::unique_ptr<renderer::DescriptorSetLayout> global_descriptor_set_layout_ = nullptr;
+    std::vector<VkDescriptorSet> global_descriptor_sets_;
+
 };
 
 } // namespace renderer

@@ -41,7 +41,7 @@ void Buffer::Unmap()
 
 void Buffer::WriteToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset)
 {
-    assert(mapped_ != nullptr);
+    assert(mapped_ && "Cannot copy to unmapped buffer");
 
     if (size == VK_WHOLE_SIZE)
     {
@@ -53,6 +53,17 @@ void Buffer::WriteToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset)
         mem_offset += offset;
         std::memcpy(mem_offset, data, size);
     }
+}
+
+VkResult Buffer::Flush(VkDeviceSize size, VkDeviceSize offset)
+{
+    VkMappedMemoryRange mapped_range = {};
+    mapped_range.sType = VK_STRUCTURE_TYPE_MAPPED_RANGE;
+    mapped_range.memory = memory_;
+    mapped_range.offset = offset;
+    mapped_range.size = size;
+
+    return vkFlushMappedMemoryRanges(device_.GetDevice(), 1, &mapped_range);
 }
 
 VkDescriptorBufferInfo Buffer::DescriptorInfo(VkDeviceSize size, VkDeviceSize offset)

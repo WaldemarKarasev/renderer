@@ -25,7 +25,7 @@ public:
     VkResult Map(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
     void Unmap();
     void WriteToBuffer(void* data, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
-
+    VkResult Flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
     // Getters
 
     VkBuffer GetBuffer() { return buffer_; }
