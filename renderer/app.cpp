@@ -6,6 +6,8 @@
 // renderer includes
 #include <renderer/renderer/buffer.hpp>
 
+// keycodes
+#include <renderer/input/key_codes.hpp>
 
 #include <chrono>
 
@@ -76,6 +78,9 @@ void App::Run()
         // main loop
         glfwPollEvents();
         
+        // updating input system or camera state
+        input_.
+
         // std::cout << "loop" << std::endl;
         if (auto command_buffer = renderer_.BeginFrame())
         {

@@ -14,6 +14,9 @@
 #include <renderer/renderer/pipeline.hpp>
 #include <renderer/renderer/frame_utility.hpp>
 
+// systems
+#include <renderer/input/input.hpp>
+
 namespace engine {
 
 class App
@@ -45,6 +48,7 @@ private:
     std::unique_ptr<renderer::DescriptorSetLayout> global_descriptor_set_layout_ = nullptr;
     std::vector<VkDescriptorSet> global_descriptor_sets_;
 
+    systems::GLFWInput input_{window_};
 };
 
 } // namespace renderer
