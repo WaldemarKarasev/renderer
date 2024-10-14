@@ -17,6 +17,9 @@
 // systems
 #include <renderer/input/input.hpp>
 
+// camera
+#include <renderer/camera.hpp>
+
 namespace engine {
 
 class App
@@ -49,6 +52,7 @@ private:
     std::vector<VkDescriptorSet> global_descriptor_sets_;
 
     systems::GLFWInput input_{window_};
+    std::unique_ptr<Camera> camera_ = nullptr;
 };
 
 } // namespace renderer

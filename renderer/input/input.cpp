@@ -4,41 +4,56 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-namespace systems
-{
+namespace engine::systems {
 
-bool GLFWInput::IsKeyPressed(int keycode)
+void GLFWInput::Update()
 {
-    auto state = glfwGetKey(window_, keycode);
-    return state == GLFW_PRESS || state == GLFW_REPEAT;
+    for (const auto& [key, value] : pressed_buttons_)
+    {
+        auto state = glfwGetKey(window_.GetNativeWindow(), static_cast<int>(key));
+        if (state == GLFW_PRESS || state == GLFW_REPEAT)
+        {
+            pressed_buttons_[key] = true;
+        }
+        else
+        {
+            pressed_buttons_[key] = false;
+        }
+    }
 }
 
-bool GLFWInput::IsMouseButtonPressed(int button)
+bool GLFWInput::IsKeyPressed(Key keycode)
 {
-    auto state = glfwGetMouseButton(window_, button);
-    return state == GLFW_PRESS;
+    if (pressed_buttons_.count(keycode))
+    {
+        return pressed_buttons_[keycode];
+    }
+
+    return false;
 }
 
-std::pair<float, float> GetMousePosition()
+bool GLFWInput::IsMouseButtonPressed(Key button)
 {
-    float x_pos;
-    float y_pos;
+    // Not implemented
+    return false;
+}
 
-    glfwGetCursorPos(window_, &x_pos, &y_pos);
-
-    return {x_pos, y_pos};
+std::pair<float, float> GLFWInput::GetMousePosition()
+{
+    // Not implemented
+    return {};
 }
 
 float GLFWInput::GetMouseX()
 {
-    auto[x, y] = GetMousePosition();
-    return x;
+    // Not implemented
+    return {};
 }
 
 float GLFWInput::GetMouseY()
 {
-    auto[x, y] = GetMousePosition();
-    return y;
+    // Not implemented
+    return {};
 }
 
 } // namespace systems

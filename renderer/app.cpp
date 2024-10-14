@@ -79,7 +79,8 @@ void App::Run()
         glfwPollEvents();
         
         // updating input system or camera state
-        input_.
+        input_.Update();
+        
 
         // std::cout << "loop" << std::endl;
         if (auto command_buffer = renderer_.BeginFrame())

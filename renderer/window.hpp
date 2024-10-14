@@ -31,7 +31,8 @@ public:
 
     bool WasResized() { return framebuffer_resized_; }
     void ResetResizedFlag() { framebuffer_resized_ = false; }
-
+    
+    GLFWwindow* GetNativeWindow() { return window_; }
 
 private:
     void InitWindow();
