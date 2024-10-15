@@ -2,28 +2,52 @@
 
 namespace engine {
 
-void Camera::SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far)
+   
+Camera::Camera(glm::vec3 position, glm::vec3 rotation, ProjectionMode mode)
+    : position_(std::move(position))
+    , rotation_(std::move(rotation))
+    , mode_{mode}
 {
+    UpdateViewMatrix();
+    UpdateProjectionMatrix();
+}
+
+void Camera::SetPosition(glm::vec3 position)
+{
+    position_ = std::move(position);
+    UpdateViewMatrix();
+}
+
+void Camera::SetRotation(glm::vec3 rotation)
+{
+    rotation_ = std::move(rotation);
+    UpdateViewMatrix();
 
 }
 
-void Camera::SetPerspectiveProjection(float fovy, float aspect, float near, float far)
+void Camera::SetPositionRotation(glm::vec3 position, glm::vec3 rotation)
 {
-
+    position_ = std::move(position);
+    rotation_ = std::move(rotation);
+    UpdateViewMatrix();
 }
 
-void Camera::SetViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up)
+void Camera::SetProJectionMode(ProjectionMode mode)
 {
-
+    mode_ = mode;
+    UpdateProjectionMatrix();
 }
 
-void Camera::SetViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up)
+void Camera::UpdateViewMatrix()
 {
-
+    // view_matrix_  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)); 
+    view_matrix_  = glm::lookAt(position_, rotation_, glm::vec3(0.0f, 0.0f, 1.0f)); 
 }
 
-void Camera::SetViewYXZ(glm::vec3 position, glm::vec3 rotation)  
+void Camera::UpdateProjectionMatrix()
 {
+    projection_matrix_  = glm::perspective(glm::radians(45.0f), 1.8f, 0.1f, 10.0f);
+    projection_matrix_[1][1] *= -1;
 
 }
 

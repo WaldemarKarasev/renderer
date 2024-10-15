@@ -39,6 +39,11 @@ App::App()
         .SetMaxSets(renderer::SwapChain::MAX_FRAMES_IN_FLIGHT)
         .AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, renderer::SwapChain::MAX_FRAMES_IN_FLIGHT)
         .Build();
+
+    auto position = glm::vec3(2.0f, 2.0f, 2.0f);
+    auto rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    camera_ = std::make_unique<Camera>(std::move(position), std::move(rotation), Camera::ProjectionMode::Perspective);
+
 }
 
 void App::Run()
@@ -118,6 +123,7 @@ void App::Render(const renderer::FrameInfo& frame_info)
     vertex_buffer_->DrawBuffer(frame_info.command_buffer_);
 }
 
+
 void App::UpdateUBO(const renderer::FrameInfo& frame_info)
 {
     static auto start_time = std::chrono::high_resolution_clock::now();
@@ -127,9 +133,20 @@ void App::UpdateUBO(const renderer::FrameInfo& frame_info)
 
     renderer::UBO ubo;
     ubo.model_ = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.view_  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)); 
-    ubo.proj_  = glm::perspective(glm::radians(45.0f), renderer_.GetSwapChainExtent().width / static_cast<float>(renderer_.GetSwapChainExtent().height), 0.1f, 10.0f);
-    ubo.proj_[1][1] *= -1;
+
+    
+    if (input_.IsKeyPressed(systems::Key::LEFT))
+    {
+
+    }
+    
+
+    ubo.view_ = camera_->GetViewMatrix();
+    ubo.proj_ = camera_->GetProjMatrix();
+
+    // ubo.view_  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)); 
+    // ubo.proj_  = glm::perspective(glm::radians(45.0f), renderer_.GetSwapChainExtent().width / static_cast<float>(renderer_.GetSwapChainExtent().height), 0.1f, 10.0f);
+    // ubo.proj_[1][1] *= -1;
 
     ubo_buffers[frame_info.frame_index_]->WriteToBuffer(&ubo);
     ubo_buffers[frame_info.frame_index_]->Flush(); // TODO: try to comment this line when rendering

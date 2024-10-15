@@ -1,6 +1,9 @@
 #pragma once
 
 // glm
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec3.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
 
@@ -17,24 +20,26 @@ public:
     };
 
 public:
-    Camera() = default;
+    Camera(glm::vec3 position = {0, 0, 0}, glm::vec3 rotation = {0, 0, 0}, ProjectionMode mode = ProjectionMode::Perspective);
 
-    void SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
-    void SetPerspectiveProjection(float fovy, float aspect, float near, float far);
+    void SetPosition(glm::vec3 position);
+    void SetRotation(glm::vec3 rotation);
+    void SetPositionRotation(glm::vec3 position, glm::vec3 rotation);
+    void SetProJectionMode(ProjectionMode mode);
 
-    void SetViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up = glm::vec3{0.f, -1.f, 0.f});
-    void SetViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up = glm::vec3{0.f, -1.f, 0.f});
-    void SetViewYXZ(glm::vec3 position, glm::vec3 rotation);    
+    glm::mat4x4 GetViewMatrix() { return view_matrix_; }
+    glm::mat4x4 GetProjMatrix() { return projection_matrix_; }
 
-    const glm::mat4& GetProjectionMatrix() const { return projection_matrix_; }
-    const glm::mat4& GetViewMatrix() const { return view_matrix_; }
-    const glm::mat4& GetInverseViewMatrix() const { return inverse_view_matrix_; }
-    const glm::vec3  GetPosition() const { return glm::vec3(inverse_view_matrix_[3]); }
+private:
+    void UpdateViewMatrix();
+    void UpdateProjectionMatrix();
 
-    private:
-    glm::mat4 projection_matrix_{1.f};
-    glm::mat4 view_matrix_{1.f};
-    glm::mat4 inverse_view_matrix_{1.f};
+private:
+    glm::vec3 position_;
+    glm::vec3 rotation_;
+    ProjectionMode mode_;
+    glm::mat4x4 view_matrix_;
+    glm::mat4x4 projection_matrix_;
 };
 
 } // namespace engine
