@@ -21,7 +21,7 @@ namespace renderer {
 
 struct Vertex 
 {
-    glm::vec2 pos_;
+    glm::vec3 pos_;
     glm::vec3 col_;
 
     static VkVertexInputBindingDescription GetBindingDescription()
@@ -39,7 +39,7 @@ struct Vertex
         std::array<VkVertexInputAttributeDescription, 2> attribute_descriptions{};
         attribute_descriptions[0].binding = 0;
         attribute_descriptions[0].location = 0;
-        attribute_descriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+        attribute_descriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
         attribute_descriptions[0].offset = offsetof(Vertex, pos_);
 
         attribute_descriptions[1].binding = 0;

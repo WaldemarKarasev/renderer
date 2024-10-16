@@ -18,18 +18,14 @@ App::App()
 
     // Initializing vertex buffer for quad
     std::vector<renderer::Vertex> square = {           /* Vertices */
-                                    // {{-0.5f, -0.5f},    {1.0f, 0.0f, 0.0f}},
-                                    // {{0.5f, -0.5f},     {0.0f, 1.0f, 0.0f}},
-                                    // {{0.5f, 0.5f},      {0.0f, 0.0f, 1.0f}},
-                                    // {{-0.5f, 0.5f},     {1.0f, 1.0f, 1.0f}}
-                                        {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-                                        {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-                                        {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-                                        {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+                                        {{-0.5f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f}}, // 0 red
+                                        {{0.5f, -0.5f,  1.0f}, {0.0f, 1.0f, 0.0f}},  // 1 green
+                                        {{0.5f, 0.5f,   1.0f}, {0.0f, 0.0f, 1.0f}},   // 2 blue
+                                        {{-0.5f, 0.5f,  1.0f}, {1.0f, 1.0f, 1.0f}}   // 3 white
                                 };
                                         /* Indices */
-    // std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
-     std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
+    std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
+    //  std::vector<uint16_t> indices = {0, 3, 2, 2, 1, 0};
 
     vertex_buffer_ = std::make_unique<renderer::VertexBuffer>(device_, std::move(square), std::move(indices));
 
@@ -132,17 +128,12 @@ void App::UpdateUBO(const renderer::FrameInfo& frame_info)
     float time = std::chrono::duration<float, std::chrono::seconds::period>(current_time - start_time).count();
 
     renderer::UBO ubo;
-    ubo.model_ = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-    
-    if (input_.IsKeyPressed(systems::Key::LEFT))
-    {
-
-    }
-    
-
-    ubo.view_ = camera_->GetViewMatrix();
-    ubo.proj_ = camera_->GetProjMatrix();
+    // ubo.model_ = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.model_ = glm::mat4x4{1.0f};
+    // ubo.view_ = camera_->GetViewMatrix();
+    // ubo.proj_ = camera_->GetProjMatrix();
+    ubo.view_ = glm::mat4x4{1.0f};
+    ubo.proj_ = glm::mat4x4{1.0f};
 
     // ubo.view_  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)); 
     // ubo.proj_  = glm::perspective(glm::radians(45.0f), renderer_.GetSwapChainExtent().width / static_cast<float>(renderer_.GetSwapChainExtent().height), 0.1f, 10.0f);
