@@ -36,7 +36,7 @@ App::App()
         .AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, renderer::SwapChain::MAX_FRAMES_IN_FLIGHT)
         .Build();
 
-    auto position = glm::vec3(2.0f, 2.0f, 2.0f);
+    auto position = glm::vec3(.0f, .0f, -1.0f);
     auto rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     camera_ = std::make_unique<Camera>(std::move(position), std::move(rotation), Camera::ProjectionMode::Perspective);
 
@@ -129,13 +129,37 @@ void App::UpdateUBO(const renderer::FrameInfo& frame_info)
 
     renderer::UBO ubo;
     // ubo.model_ = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    
+    float scale_x = 0.5;
+    float scale_y = 1;
+    float scale_z = 1;
+
+
+    glm::mat4x4 scale = glm::mat4x4{scale_x,   0.0f,    0.0f,   0.0f,
+                                    0.0f,   scale_y,    0.0f,   0.0f,
+                                    0.0f,      0.0f, scale_z,   0.0f,
+                                    0.0f,      0.0f,    0.0f,   1.0f};
+
+    float alpha = glm::pi<float>() / 4 * time; // 45 degree
+
+
+    float sin = glm::sin(alpha);
+    float cos = glm::cos(alpha);
+
+    glm::mat4x4 rotate = glm::mat4x4{cos,      -sin,     0.0f,   0.0f,
+                                        sin,   cos,     0.0f,   0.0f,
+                                        0.0f,      0.0f,  1,   0.0f,
+                                        0.0f,      0.0f,     0.0f,   1.0f};
+    // ubo.model_ =  rotate * scale;
     ubo.model_ = glm::mat4x4{1.0f};
-    // ubo.view_ = camera_->GetViewMatrix();
-    // ubo.proj_ = camera_->GetProjMatrix();
-    ubo.view_ = glm::mat4x4{1.0f};
-    ubo.proj_ = glm::mat4x4{1.0f};
+
+    // ubo.view_ = glm::mat4x4{1.0f};
+    // ubo.proj_ = glm::mat4x4{1.0f};
 
     // ubo.view_  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)); 
+    // ubo.view_  = glm::lookAt(glm::vec3(.0f, -1.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)); 
+    ubo.view_ = camera_->GetViewMatrix();
+    ubo.proj_ = camera_->GetProjMatrix();
     // ubo.proj_  = glm::perspective(glm::radians(45.0f), renderer_.GetSwapChainExtent().width / static_cast<float>(renderer_.GetSwapChainExtent().height), 0.1f, 10.0f);
     // ubo.proj_[1][1] *= -1;
 
