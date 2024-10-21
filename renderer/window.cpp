@@ -15,7 +15,8 @@ Window::Window(std::string name, int width, int height)
     
 Window::~Window()
 {
-
+    glfwDestroyWindow(window_);
+    glfwTerminate();
 }
 
 void Window::InitWindow()
@@ -50,7 +51,6 @@ VkExtent2D Window::GetExtent()
 {
     return {static_cast<uint32_t>(width_), static_cast<uint32_t>(height_)};
 }
-
 
 void Window::FrameBufferResizeCallback(GLFWwindow* window, int width, int height)
 {

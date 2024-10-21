@@ -46,7 +46,6 @@ private:
     void CreateFramebuffers();
     void CreateSyncObjects();
     
-    void CleanupSwapChain();
 
     void CreateRenderPass();
 

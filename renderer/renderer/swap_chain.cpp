@@ -34,9 +34,19 @@ SwapChain::SwapChain(Device& device, VkExtent2D window_extent)
 
 SwapChain::~SwapChain()
 {
+    for (auto framebuffer : swap_chain_framebuffers_)
+    {
+        vkDestroyFrameBuffer(device_.GetDevice(), framebuffer, nullptr);
+    }
+
     for (auto image_view : swap_chain_image_views_) 
     {
         vkDestroyImageView(device_.GetDevice(), image_view, nullptr);
+    }
+
+    for (auto image : swap_chain_images_) 
+    {
+        vkDestroyImage(device_.GetDevice(), image, nullptr);
     }
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -45,9 +55,9 @@ SwapChain::~SwapChain()
         vkDestroyFence(device_.GetDevice(), in_flight_fences_[i], nullptr);
     }
 
-    vkDestroySwapchainKHR(device_.GetDevice(), swap_chain_, nullptr);
+    vkDestroyRenderPass(device_.GetDevice(), render_pass_, nullptr);
 
-    vkDestroyRenderPass(device_.GetDevice(), render_pass_, nullptr);    
+    vkDestroySwapchainKHR(device_.GetDevice(), swap_chain_, nullptr);
 }
 
 VkResult SwapChain::AcquireImage(uint32_t* image_index)
@@ -162,12 +172,6 @@ void SwapChain::CreateSwapChain()
     swap_chain_image_format_ = surface_format.format;
     swap_chain_extent_ = extent;
 }   
-
-void SwapChain::CleanupSwapChain()
-{
-
-}
-
 
 void SwapChain::CreateSwapChainImageViews()
 {

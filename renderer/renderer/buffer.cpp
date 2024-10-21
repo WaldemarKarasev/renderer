@@ -24,6 +24,7 @@ Buffer::Buffer(Device& device,
 
 Buffer::~Buffer()
 {
+    Unmap();
     vkDestroyBuffer(device_.GetDevice(), buffer_, nullptr);
     vkFreeMemory(device_.GetDevice(), memory_, nullptr);
 }
