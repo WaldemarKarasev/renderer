@@ -73,7 +73,6 @@ void App::Run()
     // Creating pipeline for quad rendering. For now this is a kind of prototype for the rendering system 
     pipeline_ = std::make_unique<renderer::Pipeline>(device_, renderer_.GetSwapchainRenderPass(), global_descriptor_set_layout_->GetDescriptorSetLayout());
     // pipeline_ = std::make_unique<renderer::Pipeline>(device_, renderer_.GetSwapchainRenderPass(), nullptr);
-
     while(!window_.ShouldClose())
     {
         // main loop
@@ -81,7 +80,6 @@ void App::Run()
         
         // updating input system or camera state
         input_.Update();
-        
 
         // std::cout << "loop" << std::endl;
         if (auto command_buffer = renderer_.BeginFrame())
@@ -102,6 +100,7 @@ void App::Run()
         {
             std::cout << "Error receiving command_buffer from BeginFrame function" << std::endl;
         }
+        vkDeviceWaitIdle(device_.GetDevice());
     }
 }
 
@@ -126,7 +125,9 @@ void App::UpdateUBO(const renderer::FrameInfo& frame_info)
 
     auto current_time = std::chrono::high_resolution_clock::now();
     float time = std::chrono::duration<float, std::chrono::seconds::period>(current_time - start_time).count();
-
+    
+    controller_.MoveCammera(*camera_, input_);
+    
     renderer::UBO ubo;
     // ubo.model_ = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     

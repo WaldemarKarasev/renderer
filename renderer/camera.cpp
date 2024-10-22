@@ -40,10 +40,6 @@ void Camera::SetProJectionMode(ProjectionMode mode)
 
 void Camera::UpdateViewMatrix()
 {
-    // view_matrix_  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)); 
-    // view_matrix_  = glm::lookAt(position_, rotation_, glm::vec3(0.0f, 0.0f, 1.0f));
-
-    // glm::lookAt(glm::vec3(.0f, -1.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     view_matrix_  = glm::lookAt(position_, rotation_, glm::vec3(.0f, -1.0f, .0f)); 
 }
 
@@ -52,6 +48,7 @@ void Camera::UpdateProjectionMatrix()
     projection_matrix_ = glm::perspective(glm::radians(45.0f), 2.0f, 0.1f, 10.0f);
     projection_matrix_[1][1] *= -1;
 }
+
 
 
 } // namespace engine

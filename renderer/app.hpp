@@ -19,6 +19,7 @@
 
 // camera
 #include <renderer/camera.hpp>
+#include <renderer/camera_controller.hpp>
 
 namespace engine {
 
@@ -53,6 +54,8 @@ private:
 
     systems::GLFWInput input_{window_};
     std::unique_ptr<Camera> camera_ = nullptr;
+    CameraController controller_;
+
 };
 
 } // namespace renderer

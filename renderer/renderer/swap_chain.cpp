@@ -36,7 +36,7 @@ SwapChain::~SwapChain()
 {
     for (auto framebuffer : swap_chain_framebuffers_)
     {
-        vkDestroyFrameBuffer(device_.GetDevice(), framebuffer, nullptr);
+        vkDestroyFramebuffer(device_.GetDevice(), framebuffer, nullptr);
     }
 
     for (auto image_view : swap_chain_image_views_) 
@@ -46,10 +46,11 @@ SwapChain::~SwapChain()
 
     for (auto image : swap_chain_images_) 
     {
-        vkDestroyImage(device_.GetDevice(), image, nullptr);
+        // vkDestroyImage(device_.GetDevice(), image, nullptr);
     }
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
+    {
         vkDestroySemaphore(device_.GetDevice(), render_finished_semaphores_[i], nullptr);
         vkDestroySemaphore(device_.GetDevice(), image_available_semaphores_[i], nullptr);
         vkDestroyFence(device_.GetDevice(), in_flight_fences_[i], nullptr);

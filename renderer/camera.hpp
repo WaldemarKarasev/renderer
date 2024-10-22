@@ -30,6 +30,9 @@ public:
     glm::mat4x4 GetViewMatrix() { return view_matrix_; }
     glm::mat4x4 GetProjMatrix() { return projection_matrix_; }
 
+    glm::vec3 GetPosition() { return position_; }
+    glm::vec3 GetRotation() { return rotation_; }
+
 private:
     void UpdateViewMatrix();
     void UpdateProjectionMatrix();

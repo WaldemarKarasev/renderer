@@ -36,8 +36,11 @@ VkResult Buffer::Map(VkDeviceSize size, VkDeviceSize offset)
 
 void Buffer::Unmap()
 {
-    vkUnmapMemory(device_.GetDevice(), memory_);
-    mapped_ = nullptr;
+    if (mapped_)
+    {
+        vkUnmapMemory(device_.GetDevice(), memory_);
+        mapped_ = nullptr;
+    }
 }
 
 void Buffer::WriteToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset)
