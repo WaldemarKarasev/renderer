@@ -55,8 +55,8 @@ public:
 
     }
 private:
-    static constexpr float s_move_speed_ = 0.0005f;
-    static constexpr float s_rotation_speed_ = 0.0005f;
+    static constexpr float s_move_speed_ = 0.005f;
+    static constexpr float s_rotation_speed_ = 0.005f;
 };
 
 } // namespace engine

@@ -42,28 +42,35 @@ public:
 
 private:
     void CreateSwapChain();
-    void CreateSwapChainImageViews(); 
+    void CreateRenderPass();
+    void CreateDepthResources();
+    void CreateImageViews(); 
     void CreateFramebuffers();
     void CreateSyncObjects();
     
 
-    void CreateRenderPass();
 
 private:
     VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-
+    VkFormat FindDepthFormat();
 
 private:
     Device& device_;
     VkExtent2D window_extent_;
 
     VkSwapchainKHR swap_chain_;
+
+    // images
+    std::vector<VkImage> depth_images_;
+    std::vector<VkDeviceMemory> depth_image_memorys_;
+    std::vector<VkImageView> depth_image_views_;
+
     std::vector<VkImage> swap_chain_images_;
-    // ImageViews
     std::vector<VkImageView> swap_chain_image_views_;
 
     // SwapChain format end extent
     VkFormat swap_chain_image_format_;
+    VkFormat swap_chain_depth_format_;
     VkExtent2D swap_chain_extent_;
 
     // Framebuffers

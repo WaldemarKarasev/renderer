@@ -17,17 +17,77 @@ App::App()
 {
 
     // Initializing vertex buffer for quad
-    std::vector<renderer::Vertex> square = {           /* Vertices */
-                                        {{-0.5f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f}}, // 0 red
-                                        {{0.5f, -0.5f,  1.0f}, {0.0f, 1.0f, 0.0f}},  // 1 green
-                                        {{0.5f, 0.5f,   1.0f}, {0.0f, 0.0f, 1.0f}},   // 2 blue
-                                        {{-0.5f, 0.5f,  1.0f}, {1.0f, 1.0f, 1.0f}}   // 3 white
-                                };
-                                        /* Indices */
-    std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
+    // std::vector<renderer::Vertex> square = {           /* Vertices */
+    //                                     {{-0.5f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f}}, // 0 red
+    //                                     {{0.5f, -0.5f,  1.0f}, {0.0f, 1.0f, 0.0f}},  // 1 green
+    //                                     {{0.5f, 0.5f,   1.0f}, {0.0f, 0.0f, 1.0f}},   // 2 blue
+    //                                     {{-0.5f, 0.5f,  1.0f}, {1.0f, 1.0f, 1.0f}}   // 3 white
+    //                             };
+    //                                     /* Indices */
+    // std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
     //  std::vector<uint16_t> indices = {0, 3, 2, 2, 1, 0};
 
-    vertex_buffer_ = std::make_unique<renderer::VertexBuffer>(device_, std::move(square), std::move(indices));
+    // vertex_buffer_ = std::make_unique<renderer::VertexBuffer>(device_, std::move(square), std::move(indices));
+    std::vector<renderer::Vertex> cube = {
+        // left face (white)
+        {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},      // 0
+        {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},        // 1
+        {{-.5f, -.5f, .5f}, {.9f, .9f, .9f}},       // 2
+        {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},      // 3
+        {{-.5f, .5f, -.5f}, {.9f, .9f, .9f}},       // 4
+        {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},        // 5
+    
+        // right face (yellow)
+        {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},       // 6
+        {{.5f, .5f, .5f}, {.8f, .8f, .1f}},         // 7
+        {{.5f, -.5f, .5f}, {.8f, .8f, .1f}},        // 8
+        {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},       // 9
+        {{.5f, .5f, -.5f}, {.8f, .8f, .1f}},        // 10
+        {{.5f, .5f, .5f}, {.8f, .8f, .1f}},         // 11
+    
+        // top face (orange, remember y axis points down)
+        {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},      // 12
+        {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},        // 13
+        {{-.5f, -.5f, .5f}, {.9f, .6f, .1f}},       // 14
+        {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},      // 15
+        {{.5f, -.5f, -.5f}, {.9f, .6f, .1f}},       // 16
+        {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},        // 17
+    
+        // bottom face (red)
+        {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},       // 18
+        {{.5f, .5f, .5f}, {.8f, .1f, .1f}},         // 19
+        {{-.5f, .5f, .5f}, {.8f, .1f, .1f}},        // 20
+        {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},       // 21
+        {{.5f, .5f, -.5f}, {.8f, .1f, .1f}},        // 22
+        {{.5f, .5f, .5f}, {.8f, .1f, .1f}},         // 23
+    
+        // nose face (blue)
+        {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},      // 24
+        {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},        // 25
+        {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}},       // 26
+        {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},      // 27
+        {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},       // 28
+        {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},        // 29
+    
+        // tail face (green)
+        {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},     // 30
+        {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},       // 31
+        {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}},      // 32
+        {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},     // 33
+        {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},      // 34
+        {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},       // 35
+    };
+    // std::vector<uint16_t> indices = {   
+    //                                     0, 1, 2, 3, 4, 5,  // 1
+    //                                     6, 7, 8, 9, 10, 11, // 2
+    //                                     12, 13, 14, 15, 16, 17, // 3
+    //                                     18, 19, 20, 21, 22, 23, // 4
+    //                                     24, 25, 26, 27, 28, 29, // 5
+    //                                     30, 31, 32, 33, 34, 35, // 6
+    //                                 };
+
+    vertex_buffer_ = std::make_unique<renderer::VertexBuffer>(device_, std::move(cube));//, std::move(indices));
+    // vertex_buffer_ = std::make_unique<renderer::VertexBuffer>(device_, std::move(cube), std::move(indices));
 
     // global descriptor pool
     global_descriptor_pool_ = 
@@ -36,7 +96,7 @@ App::App()
         .AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, renderer::SwapChain::MAX_FRAMES_IN_FLIGHT)
         .Build();
 
-    auto position = glm::vec3(.0f, .0f, -1.0f);
+    auto position = glm::vec3(.0f, .0f, -5.0f);
     auto rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     camera_ = std::make_unique<Camera>(std::move(position), std::move(rotation), Camera::ProjectionMode::Perspective);
 

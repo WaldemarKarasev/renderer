@@ -43,6 +43,13 @@ private:
     ProjectionMode mode_;
     glm::mat4x4 view_matrix_;
     glm::mat4x4 projection_matrix_;
+
+    static constexpr glm::vec3 s_world_up_{ 0.f, -1.f, 0.f };
+    static constexpr glm::vec3 s_world_right_{ 0.f, 1.f, 0.f };
+    static constexpr glm::vec3 s_world_forward_{ 0.f, 0.f, 1.0f };
+    glm::vec3 direction_;
+    glm::vec3 right_;
+    glm::vec3 up_;
 };
 
 } // namespace engine
